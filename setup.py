@@ -19,6 +19,7 @@ setuptools.setup(
         "Operating System :: Linux/Unix",
     ],
     #python_requires='<3.9',
-    install_requires=['mne', 'numpy', 'scipy', 'pandas','pytest', 'seaborn'],
+    install_requires=['mne', 'numpy', 'scipy', 'pandas','pytest', 'seaborn',
+        'pyctf-lite @ git+https://github.com/nih-megcore/pyctf-lite@v1.0#egg=pyctf-lite'],
     scripts=['hv_proc/hv_process.py'] 
 )
