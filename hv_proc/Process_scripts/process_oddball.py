@@ -109,43 +109,63 @@ def process_single_dataset(filename):
     response = threshold_detect(dsname=filename, mark='response', deadTime=0.5, 
                      derivThresh=0.5, channel='UADC005')
     
-    noise = threshold_detect(dsname=filename, mark='noise', deadTime=0.5, 
-                             ampThresh=0.1, derivThresh=0.1, channel='UADC004')
+    # noise = threshold_detect(dsname=filename, mark='noise', deadTime=0.5, 
+    #                          ampThresh=0.1, derivThresh=0.1, channel='UADC004')
     
-    tonestim = threshold_detect(dsname=filename, mark='tonestim', deadTime=0.5, 
-                             ampThresh=0.4, derivThresh=0.2, channel='UADC003', 
-                             lo=0.2, hi=70)
+    # tonestim = threshold_detect(dsname=filename, mark='tonestim', deadTime=0.5, 
+    #                          ampThresh=0.4, derivThresh=0.2, channel='UADC003', 
+    #                          lo=0.2, hi=70)
     
     ppt = detect_digital(filename, channel='UPPT001')
     
-    dframe = append_conditions([response, noise, tonestim, ppt])
+    dframe = append_conditions([response, ppt]) #noise, tonestim, ppt])
 
-    dframe.loc[dframe['condition']=='1', 'condition'] = 'tone1'
-    dframe.loc[dframe['condition']=='2', 'condition'] = 'tone2'
-    dframe.loc[dframe['condition']=='3', 'condition'] = 'static'
+    dframe.loc[dframe['condition']=='1', 'condition'] = 'standard'
+    dframe.loc[dframe['condition']=='2', 'condition'] = 'target'
+    dframe.loc[dframe['condition']=='3', 'condition'] = 'distractor'
     
-    dframe = parse_marks(dframe, marker_name='beep', lead_condition='tonestim', 
-                         lag_condition='noise', window=[-0.5, 0.5], 
-                         null_window=True, marker_on='lead')
-                        
-    dframe = parse_marks(dframe, marker_name='standard', lead_condition='beep', 
-                         lag_condition='tone1', window=[-0.25, 0], marker_on='lag')
-    
-    dframe = parse_marks(dframe, marker_name='target', lead_condition='beep', 
-                        lag_condition='tone2', window=[-0.5, 0], marker_on='lag')
-    
-    dframe = parse_marks(dframe, marker_name='distractor', lead_condition='noise',
-                         lag_condition='static', window=[-0.5, 0], marker_on='lag')
-    
-    dframe = parse_marks(dframe, marker_name='resp_correct', lead_condition='target',
-                         lag_condition='response', window=[0, 0.95], marker_on='lag')
-    
+    #Add auditory delay to all auditory components
     auditory_delay = 0.048
     idxs = dframe[dframe.condition.isin(['standard', 'target', 'distractor'])].index
     dframe.loc[idxs, 'onset'] = dframe.loc[idxs, 'onset'] + auditory_delay
     
+    dframe = parse_marks(dframe, marker_name='response_hit', lead_condition='target',
+                         lag_condition='response', window=[0, 0.95], marker_on='lag')    
+    
+    dframe = parse_marks(dframe, marker_name='response_miss', lead_condition='target',
+                         lag_condition='response', window=[0, 0.95], null_window=True, marker_on='lead')
+    
+    # =========================================================================
+    # All codes are now derived from the PPT trigger w/added delay-no UADC used
+    # =========================================================================
+    
+    # dframe = parse_marks(dframe, marker_name='beep', lead_condition='tonestim', 
+    #                      lag_condition='noise', window=[-0.5, 0.5], 
+    #                      null_window=True, marker_on='lead')
+                        
+    # dframe = parse_marks(dframe, marker_name='standard', lead_condition='beep', 
+    #                      lag_condition='tone1', window=[-0.25, 0], marker_on='lag')
+    
+    # dframe = parse_marks(dframe, marker_name='target', lead_condition='beep', 
+    #                     lag_condition='tone2', window=[-0.5, 0], marker_on='lag')
+    
+    # dframe = parse_marks(dframe, marker_name='distractor', lead_condition='noise',
+    #                      lag_condition='static', window=[-0.5, 0], marker_on='lag')
+    
+    ############### Finalize dataframe and save to the Markerfile  ###########
+    #Add response information to dataframe
+    dframe.dropna(inplace=True)
+    
+    #Cleanup dataframe to only include the output_vars
+    output_vars = ['standard', 'target', 'distractor',
+                   'response','response_hit','response_miss']
+    dframe = dframe[dframe.condition.isin(output_vars)]  
+    
+
+    
     dframe.dropna(inplace=True)
     write_mrk_file(dframe, ds_filename=filename, stim_column='condition')
+    print(f'Completed: {filename}')
 
 
     
@@ -174,7 +194,8 @@ if __name__=='__main__':
 
     # import sys
     filename=args.filename
-    main(filename, remove_process_folder=args.d)
+    process_single_dataset(filename)
+    # main(filename, remove_process_folder=args.d)
 
     # Write out the results to csv file.  Is called through the display function
     # Must set the display variable as true too
