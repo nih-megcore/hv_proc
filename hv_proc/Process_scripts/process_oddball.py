@@ -108,17 +108,10 @@ def copy_marker(filename, proc_filename):
 def process_single_dataset(filename):
     response = threshold_detect(dsname=filename, mark='response', deadTime=0.5, 
                      derivThresh=0.5, channel='UADC005')
-    
-    # noise = threshold_detect(dsname=filename, mark='noise', deadTime=0.5, 
-    #                          ampThresh=0.1, derivThresh=0.1, channel='UADC004')
-    
-    # tonestim = threshold_detect(dsname=filename, mark='tonestim', deadTime=0.5, 
-    #                          ampThresh=0.4, derivThresh=0.2, channel='UADC003', 
-    #                          lo=0.2, hi=70)
-    
+
     ppt = detect_digital(filename, channel='UPPT001')
     
-    dframe = append_conditions([response, ppt]) #noise, tonestim, ppt])
+    dframe = append_conditions([response, ppt])
 
     dframe.loc[dframe['condition']=='1', 'condition'] = 'standard'
     dframe.loc[dframe['condition']=='2', 'condition'] = 'target'
