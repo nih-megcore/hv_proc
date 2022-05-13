@@ -71,6 +71,7 @@ def main(args):
     has_sternberg = len(filter_list_by_task(subj_datasets, 'sternberg')) > 0
     has_oddball = len(filter_list_by_task(subj_datasets, 'oddball')) > 0
     has_gonogo = len(filter_list_by_task(subj_datasets, 'gonogo')) > 0
+    has_artifact = len(filter_list_by_task(subj_datasets, 'artifact')) > 0
 
     ######################## Process Task Data ###############################
     if args.airpuff and has_airpuff:
@@ -101,6 +102,11 @@ def main(args):
         filename = filter_list_by_task(subj_datasets, 'oddball')
         print('\nProcessing oddball file: {}'.format(filename[0]))
         process_oddball.main(filename[0], remove_process_folder=True)
+    if args.artifact and has_artifact:
+        from hv_proc.Process_scripts import process_artifact_scan
+        filename = filter_list_by_task(subj_datasets, 'artifact')
+        print('\nProcessing artifact file: {}'.format(filename[0]))
+        process_artifact_scan.main(filename[0], write_mrk_file=True)
         
     #################### List the output counts for the task #################
     from hv_proc.utilities.response_summary import (print_airpuff_stats, 
@@ -232,6 +238,8 @@ if __name__=='__main__':
                         help='Process triggers for gonogo task')
     parser.add_argument('-oddball', action='store_true',
                         help='Process triggers for auditory oddball task')
+    parser.add_argument('-artifact', action='store_true',
+                        help='Process triggers for artifact scan')    
     parser.add_argument('-extract_all_triggers', action='store_true', 
                         help='''Loop over all datasets and process the triggers 
                         for the subject''')
@@ -263,11 +271,13 @@ if __name__=='__main__':
         raise ValueError('No subject ID provided')
         
     if args.extract_all_triggers:
-        for i in ['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball']:
+        for i in ['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball',
+                  'artifact']:
             tmp='args.{}=True'.format(i)
             exec(tmp)
     if args.QA_all:
-        args.QA_task=['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball']
+        args.QA_task=['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball',
+                      'artifact']
         
     if args.print_stim_counts:
         args.print_stim_counts = [i.lower() for i in args.print_stim_counts]

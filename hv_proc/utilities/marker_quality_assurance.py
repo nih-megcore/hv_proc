@@ -49,12 +49,12 @@ def qa_airpuff(filename=None, logfile=None):
 def qa_oddball(filename=None, logfile=None):
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    assert summary.loc['tone1'] == 210
-    assert summary.loc['tone2'] == 45
-    assert summary.loc['tonestim'] >= 210 
-    assert summary.loc['static'] == 45
+    assert summary.loc['standard'] >= 210 
     assert summary.loc['distractor'] == 45
     assert summary.loc['target'] == 45
+    assert summary.loc['response_hit']>30
+    if 'response_miss' in summary.index:
+        assert summary.loc['response_miss']<20
     
 def qa_hariri(filename=None, logfile=None):
     '''Load the hariri dataset and verify that the emotional and contrast stims
