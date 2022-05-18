@@ -21,5 +21,5 @@ setuptools.setup(
     #python_requires='<3.9',
     install_requires=['mne', 'numpy', 'scipy', 'pandas','pytest', 'seaborn',
         'pyctf-lite @ git+https://github.com/nih-megcore/pyctf-lite@v1.0#egg=pyctf-lite'],
-    scripts=['hv_proc/hv_process.py'] 
+    scripts=['hv_proc/hv_process.py', 'hv_proc/utilities/clear_mrk_path.py'] 
 )
