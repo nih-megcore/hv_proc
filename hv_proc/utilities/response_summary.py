@@ -6,7 +6,7 @@ Created on Thu Apr 23 10:02:20 2020
 @author: stoutjd
 """
 
-
+import os
 import mne, glob, copy
 import pandas as pd
 import numpy as np
@@ -109,7 +109,7 @@ def print_gonogo_stats(filename):
     dframe = calc_delay(dframe, 'nogo', 'response_false_alarm', max_delay=1.0)
     print_response_stats(dframe)
 
-def print_hariri_stats(filename):
+def print_hariri_stats(filename, return_dframe=False):
     '''Return the response statistics for the hariri task'''
     dframe = annot_dataframe(filename)
     delay_val = 2.0
@@ -122,6 +122,29 @@ def print_hariri_stats(filename):
     dframe = calc_delay(dframe, 'probe_match_sad', 'response_hit', 
                         max_delay=delay_val)
     print_response_stats(dframe)
+    if return_dframe:
+        return dframe
+
+def make_project_response_stats(bids_root=None, 
+    outfname=None, task=None):
+    '''Loop over file list and extract response times - 
+    Compile the results into a dataframe and save to csv'''
+    dframe_list=[]
+    fnames=glob.glob(f'{bids_root}/sub-*/ses-01/meg/*{task}*.ds')
+    stats_list = []
+    for fname in fnames:
+        subjid=os.path.basename(fname).split('sub-')[-1].split('_')[0]
+        dframe=print_hariri_stats(fname, return_dframe=True)
+        summary=print_ave_delay(dframe, return_dframe=True)
+        summaryT=summary.transpose()
+        summaryT=summaryT.reset_index().rename(columns=dict(index='condition'))
+        summaryT['subject']=subjid
+        stats_list.append(summaryT)
+    all_stats=pd.concat(stats_list)
+    all_stats.reset_index(drop=True)
+    if not os.path.splitext(outfname)[-1] == '.csv':
+        outfname=outfname+'.csv'
+    all_stats.to_csv(outfname, index=False)
 
 def print_sternberg_stats(filename):
     '''Print the response statistics for the sternberg task'''
