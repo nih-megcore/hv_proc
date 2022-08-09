@@ -93,21 +93,24 @@ def print_response_stats(dframe):
 ###########  Task specific analysis  ###################    
 pd.options.display.max_columns=7
 
-def print_airpuff_stats(filename):
+def print_airpuff_stats(filename, return_dframe=False):
     '''Print the trigger counts for the airpuff task'''
     dframe = annot_dataframe(filename)    
     print('Value counts from dataset:')
     print('--------------------------')
     print(dframe.description.value_counts())
     print('\n')
-
+    if return_dframe:
+        return dframe
     
-def print_gonogo_stats(filename):
+def print_gonogo_stats(filename, return_dframe=False):
     '''Return the response statistics for the go nogo task'''
     dframe = annot_dataframe(filename)
     dframe = calc_delay(dframe, 'go', 'response_hit', max_delay=1.0)
     dframe = calc_delay(dframe, 'nogo', 'response_false_alarm', max_delay=1.0)
     print_response_stats(dframe)
+    if return_dframe:
+        return dframe
 
 def print_hariri_stats(filename, return_dframe=False):
     '''Return the response statistics for the hariri task'''
@@ -146,7 +149,7 @@ def make_project_response_stats(bids_root=None,
         outfname=outfname+'.csv'
     all_stats.to_csv(outfname, index=False)
 
-def print_sternberg_stats(filename):
+def print_sternberg_stats(filename, return_dframe=False):
     '''Print the response statistics for the sternberg task'''
     dframe = annot_dataframe(filename)
     delay_val = 2.0
@@ -155,8 +158,10 @@ def print_sternberg_stats(filename):
     dframe = calc_delay(dframe, 'probe6', 'response_hit', 
                         max_delay=delay_val)
     print_response_stats(dframe)
+    if return_dframe:
+        return dframe
     
-def print_oddball_stats(filename):
+def print_oddball_stats(filename, return_dframe=False):
     '''Load the datasets and by annotation and the parrallel port
     Combine  and calculate the delay'''
     dframe=annot_dataframe(filename)
@@ -164,6 +169,8 @@ def print_oddball_stats(filename):
     dframe=calc_delay(dframe, 'target', 'resp_correct',
                           max_delay=delay_val)
     print_response_stats(dframe)
+    if return_dframe:
+        return dframe
     
 # if __name__=='__main__':
 #     import sys
