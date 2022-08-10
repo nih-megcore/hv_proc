@@ -6,6 +6,7 @@ from hv_proc.Process_scripts.trigger_utilities import parse_marks
 import sys
 from hv_proc.Process_scripts.trigger_utilities import append_conditions
 from hv_proc.utilities import mrk_template_writer
+import os
 #
 raw_fname = sys.argv[1]
 if raw_fname[-3:] == ".ds":    
@@ -25,13 +26,19 @@ sad_hit=parse_marks(dframe, lead_condition='probe_match_sad', lag_condition='res
 dframe = append_conditions([shape_hit, happy_hit, sad_hit,dframe])
 dframe.duration = 0.0
 
-#dframe.rename(columns=dict(condition='description'), inplace=True)
-try:
-	mrk_template_writer.main(dframe=dframe,
-		ds_filename=raw_fname)
-	print(f'Successful processing of {raw_fname}')
-except:
-	raise ValueError('Failed')
+annot = mne.Annotations(onset=dframe.onset.values, duration=dframe.duration.values,description=dframe.condition.values)
+raw.set_annotations(annot)
+
+#if raw_fname[-3:]=="fif":
+new_fname=os.path.splitext(raw_fname)[0]+'modmeg.fif'
+raw.save(new_fname, overwrite=True)
+#else:
+#	try:
+#	    	mrk_template_writer.main(dframe=dframe,
+#			ds_filename=raw_fname)
+#		print(f'Successful processing of {raw_fname}')
+#	except:
+#		raise ValueError('Failed')
 	
 	
 
