@@ -8,7 +8,12 @@ from hv_proc.Process_scripts.trigger_utilities import append_conditions
 from hv_proc.utilities import mrk_template_writer
 #
 raw_fname = sys.argv[1]
-raw = mne.io.read_raw_ctf(raw_fname, preload=False, system_clock='ignore')
+if raw_fname[-3:] == ".ds":    
+    raw = mne.io.read_raw_ctf(raw_fname, preload=False, system_clock='ignore')
+elif raw_fname[-3:] == "fif":
+    raw = mne.io.read_raw_fif(raw_fname, preload=False)
+else:
+    raise ValueError('no ds or fif')
 
 dframe = pd.DataFrame(raw.annotations)
 dframe.rename(columns=dict(description='condition'), inplace=True)
@@ -26,7 +31,7 @@ try:
 		ds_filename=raw_fname)
 	print(f'Successful processing of {raw_fname}')
 except:
-	raise Error('Failed')
+	raise ValueError('Failed')
 	
 	
 
