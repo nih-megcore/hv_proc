@@ -208,8 +208,13 @@ if __name__=='__main__':
         description='''Main function for processing NIMH healthy volunteer MEG data
         for upload to OpenNeuro.  Datasets include: airpuff, rest, gonogo,
         sternberg, hariri, oddball, and movie.  Information on the protocol can 
-        be found in ........... 
+        be found in: 
+        https://openneuro.org/datasets/ds004215/versions/1.0.1 
         
+        Nugent, A.C., Thomas, A.G., Mahoney, M. et al. The NIMH intramural healthy 
+        volunteer dataset: A comprehensive MEG, MRI, and behavioral resource. 
+        Sci Data 9, 518 (2022). https://doi.org/10.1038/s41597-022-01623-9
+        ________________________________________________________________________
         hv_process loads options and calls trigger procesing functions located
         in hv_proc/Processing_Scripts.  
         Quality assurance scripts are located in hv_proc/utilities 
@@ -219,7 +224,7 @@ if __name__=='__main__':
         
         Tasks: Sternberg, Hariri, and gonogo (go/no-go) require psychoPy 
         logfiles
-        These are expected to be in hv_nimh/MEG/logfiles folder on biowulf
+        These are expected to be in nimh_hv/MEG/logfiles folder on biowulf
         
         ''') 
 
