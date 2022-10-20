@@ -31,7 +31,8 @@ def get_output_prefix(filename):
 #Preprocessing
 def preproc(filename, lfreq=None, hfreq=None, pre_stim=-0.2, post_stim=0.4, 
             stim_keeps=[]):
-    raw = mne.io.read_raw_ctf(filename, preload=True, verbose=False)
+    raw = mne.io.read_raw_ctf(filename, preload=True, verbose=False, 
+                              system_clock='ignore')
     raw = raw.filter(lfreq, hfreq, verbose=False)
     
     events, event_dict = mne.events_from_annotations(raw, verbose=False)

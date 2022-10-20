@@ -137,40 +137,40 @@ def main(args):
                                                             qa_sternberg,
                                                             qa_gonogo)
     from hv_proc.utilities.print_QA_images import (plot_airpuff,
-                                                   plot_oddball,
-                                                   plot_hariri,
-                                                   plot_sternberg, 
-                                                   plot_gonogo)
+                                                    plot_oddball,
+                                                    plot_hariri,
+                                                    plot_sternberg, 
+                                                    plot_gonogo)
     
     if ('airpuff' in args.QA_task) and has_airpuff:
         airpuff_filename = filter_list_by_task(subj_datasets, 'airpuff')[0]
         print('Testing airpuff: {}'.format(airpuff_filename))
         qa_airpuff(airpuff_filename)
-        plot_airpuff(airpuff_filename)
+        #plot_airpuff(airpuff_filename)
         
     if ('hariri' in args.QA_task) and has_hariri:
         hariri_filename = filter_list_by_task(subj_datasets, 'hariri')[0]
         print('Testing hariri: {}'.format(hariri_filename))
         qa_hariri(hariri_filename)
-        plot_hariri(hariri_filename)
+        #plot_hariri(hariri_filename)
 
     if ('sternberg' in args.QA_task) and has_sternberg:
         sternberg_filename = filter_list_by_task(subj_datasets, 'sternberg')[0]
         print('Testing sternberg: {}'.format(sternberg_filename))
         qa_sternberg(sternberg_filename)
-        plot_sternberg(sternberg_filename)
+        #plot_sternberg(sternberg_filename)
 
     if ('gonogo' in args.QA_task) and has_gonogo:
         gonogo_filename = filter_list_by_task(subj_datasets, 'gonogo')[0]
         print('Testing gonogo: {}'.format(gonogo_filename))
         qa_gonogo(gonogo_filename)
-        plot_gonogo(gonogo_filename)
+        #plot_gonogo(gonogo_filename)
  
     if ('oddball' in args.QA_task) and has_oddball:
         oddball_filename = filter_list_by_task(subj_datasets, 'oddball')[0]
         print('Testing oddball: {}'.format(oddball_filename))
         qa_oddball(oddball_filename)
-        plot_oddball(oddball_filename)
+        #plot_oddball(oddball_filename)
         
     if args.scrub_openneuro:
         #from hv_proc.utilities import clear
