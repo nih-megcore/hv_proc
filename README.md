@@ -1,4 +1,4 @@
-Scripts for QA and trigger preprocessing of NIMH HV Protocol
+# Scripts for QA and trigger preprocessing of NIMH HV Protocol
 
 ## Install 
 ```
@@ -53,5 +53,6 @@ for subj in $(hv_process.py -list_subjects); do hv_process.py -subjid $subj -ext
 ### Alternate troubleshooting
 Task by task - loop over subjects and QA outputs
 ```
-for subj in $(hv_process.py -list_subjects); do hv_process.py -airpuff -QA_task airpuff -subjid $subj  2>&1 | tee output_TASKNAME.log ; done 
+task=airpuff
+for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task ${task} -subjid $subj  2>&1 | tee -a output_${task}.log ; done 
 ```
