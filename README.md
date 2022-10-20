@@ -46,3 +46,7 @@ optional arguments:
                         files [.bak and .hist]
 
 ```
+```
+#To analyze all subjects at once:
+  for subj in $(hv_process.py -list_subjects); do hv_process.py -subjid $subj -extract_all_triggers >> logfile.txt; done
+```
