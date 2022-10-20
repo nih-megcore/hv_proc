@@ -165,12 +165,12 @@ def process_single_dataset(filename):
 def main(filename=None, remove_process_folder=False):
     '''Process the oddball triggers.  This function replicates some of the 
     functionality in the cmdline portion. '''
-    proc_filename = copy_data(filename)
-    transform_write_dsfile(proc_filename)
-    process_single_dataset(proc_filename) 
-    copy_marker(filename, proc_filename)
-    if remove_process_folder == True:
-        delete_process_folder(proc_filename)
+    # proc_filename = copy_data(filename)
+    # transform_write_dsfile(proc_filename)
+    process_single_dataset(filename) 
+    # copy_marker(filename, proc_filename)
+    # if remove_process_folder == True:
+    #     delete_process_folder(proc_filename)
 
 if __name__=='__main__':
     import argparse
