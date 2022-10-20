@@ -46,7 +46,12 @@ optional arguments:
                         files [.bak and .hist]
 
 ```
+### To analyze all subjects at once:
 ```
-#To analyze all subjects at once:
-  for subj in $(hv_process.py -list_subjects); do hv_process.py -subjid $subj -extract_all_triggers >> logfile.txt; done
+for subj in $(hv_process.py -list_subjects); do hv_process.py -subjid $subj -extract_all_triggers >> logfile.txt; done
+```
+### Alternate troubleshooting
+Task by task - loop over subjects and QA outputs
+```
+for subj in $(hv_process.py -list_subjects); do hv_process.py -airpuff -QA_task airpuff -subjid $subj  2>&1 | tee output_TASKNAME.log ; done 
 ```
