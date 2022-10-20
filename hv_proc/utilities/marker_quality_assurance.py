@@ -23,14 +23,14 @@ def convert_annotations_to_dframe(annot):
 
 def annot_dataframe(filename):
     '''Loads the filename and returns a dataframe'''
-    raw = mne.io.read_raw_ctf(filename, verbose=False) 
+    raw = mne.io.read_raw_ctf(filename, verbose=False, system_clock='ignore') 
     annot = raw.annotations
     dataframe = convert_annotations_to_dframe(annot)
     return dataframe
 
 # def ppt_dataframe(filename):
 #     '''Load the parrallel port into a dataframe'''
-#     raw = mne.io.read_raw_ctf(filename, verbose=False) 
+#     raw = mne.io.read_raw_ctf(filename, verbose=False, system_clock='ignore') 
 #     raw.get_data(picks=['UPPT001'])
 #     events = mne.event.find_events(raw, stim_channel='UPPT001', verbose=False)
 #     dframe=pd.DataFrame(events, columns=['Sample', 'duration', 'description'])
