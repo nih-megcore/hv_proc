@@ -10,7 +10,8 @@ from hv_proc.Process_scripts.trigger_utilities import check_analog_inverted
 from hv_proc.Process_scripts.trigger_utilities import (threshold_detect, 
                                                            parse_marks, 
                                                            detect_digital,
-                                                           append_conditions)
+                                                           append_conditions,
+                                                           crop_logfile_overflow)
 
 from hv_proc.utilities import mrk_template_writer
 import pandas as pd
@@ -62,6 +63,9 @@ def main(filename=None, logfile=None, write_mrk_file=True):
     dframe = parse_marks(dframe, marker_name='nogo', lead_condition='projector', 
                  lag_condition='2', window=[-0.5, 0.5], marker_on='lead')
     dframe.dropna(inplace=True)
+    
+    #Crop off overflow to prevent mismatch between logfile and projector
+    dframe = crop_logfile_overflow(dframe)
     
     #Conditions in the log file need to be corrected to the projector timing
     for stim in ['triangle', 'diamond', 'pentagon', 'circle', 'square',
