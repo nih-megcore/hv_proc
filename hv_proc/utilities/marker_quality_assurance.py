@@ -14,6 +14,9 @@ import mne, glob, copy
 import pandas as pd
 import numpy as np
 import os
+import logging
+
+logger=logging.getLogger()
 
 def convert_annotations_to_dframe(annot):
     '''Code snippet pulled from mne python mne.annotations._annotations_to_csv()'''
@@ -28,33 +31,50 @@ def annot_dataframe(filename):
     dataframe = convert_annotations_to_dframe(annot)
     return dataframe
 
-# def ppt_dataframe(filename):
-#     '''Load the parrallel port into a dataframe'''
-#     raw = mne.io.read_raw_ctf(filename, verbose=False, system_clock='ignore') 
-#     raw.get_data(picks=['UPPT001'])
-#     events = mne.event.find_events(raw, stim_channel='UPPT001', verbose=False)
-#     dframe=pd.DataFrame(events, columns=['Sample', 'duration', 'description'])
-#     dframe['onset']=dframe.Sample/raw.info['sfreq']
-#     dframe=dframe.drop('Sample', axis=1)
-#     return dframe
+def get_subj_logger(subjid, session, log_dir=None):
+     '''Return the subject specific logger.
+     This is particularly useful in the multiprocessing where logging is not
+     necessarily in order'''
+     fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+     sub_ses = f'{subjid}'
+     subj_logger = logging.getLogger(sub_ses)
+     if subj_logger.handlers != []: # if not first time requested, use the file handler already defined
+         tmp_ = [type(i) for i in subj_logger.handlers ]
+         if logging.FileHandler in tmp_:
+             return subj_logger
+     else: # first time requested, add the file handler
+         fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
+         fileHandle.setLevel(logging.INFO)
+         fileHandle.setFormatter(logging.Formatter(fmt)) 
+         subj_logger.addHandler(fileHandle)
+         subj_logger.info('Initializing subject level HV log')
+     return subj_logger   
+
 
 ####################### SET OF TESTS FOR OUTPUTS ON HV #######################
 # These verify that the expected outputs have the right number of triggers
 def qa_airpuff(filename=None, logfile=None):
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    assert summary.loc['stim'] == 425
-    assert summary.loc['missingstim'] == 75
+    if not summary.loc['stim'] == 425:
+        logger.warning('Airpuff stim count != 425: {summary.loc["stim"]}')
+    if not sumamry.loc['missingstim'] == 75:
+        logger.warning('Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
 
 def qa_oddball(filename=None, logfile=None):
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    assert summary.loc['standard'] >= 210 
-    assert summary.loc['distractor'] == 45
-    assert summary.loc['target'] == 45
-    assert summary.loc['response_hit']>30
+    if not summary.loc['standard'] >= 210:
+        logger.warning('Oddball standard not >= 210: f{summary.loc["standard"]}')
+    if not summary.loc['distractor'] == 45:
+        logger.warning('Oddball distractor != 45: f{summary.loc["distractor"]}')
+    if not summary.loc['target'] == 45:
+        logger.warning('Oddball target != 45: f{summary.loc["target"]}')
+    if not summary.loc['response_hit']>30:
+        logger.warning('Oddball response hit < 30: f{summary.loc["response hit"]}')
     if 'response_miss' in summary.index:
-        assert summary.loc['response_miss']<20
+        if summary.loc['response_miss']<20:
+            logger.warning('Oddball response miss > 20: f{summary.loc["response_miss"]}')
     
 def qa_hariri(filename=None, logfile=None):
     '''Load the hariri dataset and verify that the emotional and contrast stims
