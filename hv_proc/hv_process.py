@@ -6,10 +6,15 @@ Created on Tue Mar 17 08:59:50 2020
 @author: stoutjd
 """
 import os, glob
+import logging
+
 
 #Set the paths to the meg and logfile data
 try:
     default_meg_path = os.path.join(os.environ['hv_meg_path'])
+    default_outlog_path = os.path.join(os.path.dirname(default_meg_path), 'out_logs')
+    if not os.path.exists(default_outlog_path):
+        os.mkdir(default_outlog_path)
     default_logfile_path = os.path.join(os.environ['hv_logfile_path'])
 except:
     if 'hv_meg_path' not in os.environ:
@@ -20,6 +25,39 @@ except:
                          In bash: export hv_logfile_path=/$PATH/TO_Logs''')
     else:
         raise ValueError('''Unknown error setting default paths''')
+
+def get_subj_logger(subjid, session, log_dir=None):
+     '''Return the subject specific logger.
+     This is particularly useful in the multiprocessing where logging is not
+     necessarily in order'''
+     fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+     sub_ses = f'{subjid}'
+     subj_logger = logging.getLogger(sub_ses)
+     subj_logger.setLevel(logging.INFO)
+     if subj_logger.handlers != []: # if not first time requested, use the file handler already defined
+         tmp_ = [type(i) for i in subj_logger.handlers ]
+         if logging.FileHandler in tmp_:
+             return subj_logger
+     else: # first time requested, add the file handler
+         fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
+         fileHandle.setLevel(logging.INFO)
+         fileHandle.setFormatter(logging.Formatter(fmt)) 
+         subj_logger.addHandler(fileHandle)
+         subj_logger.info('Initializing subject level HV log')
+     return subj_logger   
+
+def log(function):
+    def wrapper(*args, **kwargs):  
+        logger.info(f"{function.__name__} :: START")
+        try:
+            output = function(*args, **kwargs)
+        except BaseException as e:
+            logger.exception(f"{function.__name__} :: " + str(e))
+            raise
+        logger.info(f"{function.__name__} :: COMPLETED")
+        return output
+    return wrapper
+
 
 def get_subject_datasets(subjid, meg_path=None):
     '''If meg_path not supplied - it defaults to the NIMH biowulf path'''
@@ -131,45 +169,50 @@ def main(args):
                 print_oddball_stats(filename)
         
     #################### Perform Quality Assurance Tests #####################
+    logger = get_subj_logger(args.subjid, session=None, log_dir=default_outlog_path)
+    logger.info(f'Initializing structure :: {args.subjid}')
     from hv_proc.utilities.marker_quality_assurance import (qa_oddball, 
                                                             qa_airpuff,
                                                             qa_hariri, 
                                                             qa_sternberg,
-                                                            qa_gonogo)
+                                                            qa_gonogo, 
+                                                            )
     from hv_proc.utilities.print_QA_images import (plot_airpuff,
                                                     plot_oddball,
                                                     plot_hariri,
                                                     plot_sternberg, 
                                                     plot_gonogo)
     
+
+    
     if ('airpuff' in args.QA_task) and has_airpuff:
         airpuff_filename = filter_list_by_task(subj_datasets, 'airpuff')[0]
         print('Testing airpuff: {}'.format(airpuff_filename))
-        qa_airpuff(airpuff_filename)
+        qa_airpuff(airpuff_filename, args.subjid)
         #plot_airpuff(airpuff_filename)
         
     if ('hariri' in args.QA_task) and has_hariri:
         hariri_filename = filter_list_by_task(subj_datasets, 'hariri')[0]
-        print('Testing hariri: {}'.format(hariri_filename))
-        qa_hariri(hariri_filename)
+        logger.info('Testing hariri: {}'.format(hariri_filename))
+        qa_hariri(hariri_filename, args.subjid)
         #plot_hariri(hariri_filename)
 
     if ('sternberg' in args.QA_task) and has_sternberg:
         sternberg_filename = filter_list_by_task(subj_datasets, 'sternberg')[0]
         print('Testing sternberg: {}'.format(sternberg_filename))
-        qa_sternberg(sternberg_filename)
+        qa_sternberg(sternberg_filename, args.subjid)
         #plot_sternberg(sternberg_filename)
 
     if ('gonogo' in args.QA_task) and has_gonogo:
         gonogo_filename = filter_list_by_task(subj_datasets, 'gonogo')[0]
-        print('Testing gonogo: {}'.format(gonogo_filename))
-        qa_gonogo(gonogo_filename)
+        logger.info('Testing gonogo: {}'.format(gonogo_filename))
+        qa_gonogo(gonogo_filename, args.subjid)
         #plot_gonogo(gonogo_filename)
  
     if ('oddball' in args.QA_task) and has_oddball:
         oddball_filename = filter_list_by_task(subj_datasets, 'oddball')[0]
         print('Testing oddball: {}'.format(oddball_filename))
-        qa_oddball(oddball_filename)
+        qa_oddball(oddball_filename, args.subjid)
         #plot_oddball(oddball_filename)
         
     if args.scrub_openneuro:

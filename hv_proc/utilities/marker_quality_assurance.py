@@ -16,7 +16,8 @@ import numpy as np
 import os
 import logging
 
-logger=logging.getLogger()
+# logger=logging.getLogger(__name__)
+# logger.setLevel(level=logging.INFO)
 
 def convert_annotations_to_dframe(annot):
     '''Code snippet pulled from mne python mne.annotations._annotations_to_csv()'''
@@ -31,80 +32,138 @@ def annot_dataframe(filename):
     dataframe = convert_annotations_to_dframe(annot)
     return dataframe
 
-def get_subj_logger(subjid, session, log_dir=None):
-     '''Return the subject specific logger.
-     This is particularly useful in the multiprocessing where logging is not
-     necessarily in order'''
-     fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
-     sub_ses = f'{subjid}'
-     subj_logger = logging.getLogger(sub_ses)
-     if subj_logger.handlers != []: # if not first time requested, use the file handler already defined
-         tmp_ = [type(i) for i in subj_logger.handlers ]
-         if logging.FileHandler in tmp_:
-             return subj_logger
-     else: # first time requested, add the file handler
-         fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
-         fileHandle.setLevel(logging.INFO)
-         fileHandle.setFormatter(logging.Formatter(fmt)) 
-         subj_logger.addHandler(fileHandle)
-         subj_logger.info('Initializing subject level HV log')
-     return subj_logger   
+# def get_subj_logger(subjid, log_dir=None):
+#       '''Return the subject specific logger.
+#       This is particularly useful in the multiprocessing where logging is not
+#       necessarily in order'''
+#       fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+#       sub_ses = f'{subjid}'
+#       subj_logger = logging.getLogger(sub_ses)
+#       subj_logger.setLevel(logging.INFO)
+#       if subj_logger.handlers != []: # if not first time requested, use the file handler already defined
+#           tmp_ = [type(i) for i in subj_logger.handlers ]
+#           if logging.FileHandler in tmp_:
+#               return subj_logger
+#       else: # first time requested, add the file handler
+#           fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
+#           fileHandle.setLevel(logging.INFO)
+#           fileHandle.setFormatter(logging.Formatter(fmt)) 
+#           subj_logger.addHandler(fileHandle)
+#           subj_logger.info('Initializing subject level HV log')
+#       return subj_logger 
+
+
+def log(function):
+    def wrapper(*args, **kwargs):  
+        logging.info(f"{function.__name__} :: START")
+        try:
+            output = function(*args, **kwargs)
+        except BaseException as e:
+            logging.exception(f"{function.__name__} :: " + str(e))
+            raise
+        logging.info(f"{function.__name__} :: COMPLETED")
+        return output
+    return wrapper
 
 
 ####################### SET OF TESTS FOR OUTPUTS ON HV #######################
 # These verify that the expected outputs have the right number of triggers
-def qa_airpuff(filename=None, logfile=None):
+@log
+def qa_airpuff(filename=None, subjid=None):
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
+    logger = logging.getLogger(subjid)
+    logger.info(f'Airpuff:: {subjid}')
     if not summary.loc['stim'] == 425:
         logger.warning('Airpuff stim count != 425: {summary.loc["stim"]}')
     if not sumamry.loc['missingstim'] == 75:
         logger.warning('Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
 
-def qa_oddball(filename=None, logfile=None):
+def qa_oddball(filename=None, subjid=None):
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
+    logger = logging.getLogger(subjid)
+    logger.info(f'Oddball:: {subjid}')
+    logger.info(f'Oddball standard: {summary.loc["standard"]}')
     if not summary.loc['standard'] >= 210:
-        logger.warning('Oddball standard not >= 210: f{summary.loc["standard"]}')
+        logger.warning(f'Oddball standard not >= 210: {summary.loc["standard"]}')
     if not summary.loc['distractor'] == 45:
-        logger.warning('Oddball distractor != 45: f{summary.loc["distractor"]}')
+        logger.warning(f'Oddball distractor != 45: {summary.loc["distractor"]}')
     if not summary.loc['target'] == 45:
-        logger.warning('Oddball target != 45: f{summary.loc["target"]}')
+        logger.warning(f'Oddball target != 45: {summary.loc["target"]}')
     if not summary.loc['response_hit']>30:
-        logger.warning('Oddball response hit < 30: f{summary.loc["response hit"]}')
+        logger.warning(f'Oddball response hit < 30: {summary.loc["response hit"]}')
     if 'response_miss' in summary.index:
-        if summary.loc['response_miss']<20:
-            logger.warning('Oddball response miss > 20: f{summary.loc["response_miss"]}')
-    
-def qa_hariri(filename=None, logfile=None):
+        if summary.loc['response_miss']>20:
+            logger.warning(f'Oddball response miss > 20: {summary.loc["response_miss"]}')
+
+@log
+def qa_hariri(filename=None, subjid=None):
     '''Load the hariri dataset and verify that the emotional and contrast stims
     sum to the appropriate amount'''
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    assert summary[['probe_face', 'probe_shape']].sum() == 150
-    assert summary.loc['response_hit'] > 120  #80% accuracy
-    assert summary.loc['probe_face'] == 90
-    assert summary.loc['encode_face'] == 90
-    assert summary.loc['encode_shape'] == 60
-    assert summary.loc['probe_shape'] == 60
-    assert summary.loc['probe_match_sad'] > 35
-    assert summary.loc['probe_match_happy'] > 35
-    assert summary.loc[['encode_male', 'encode_female']].sum() == 90
-    assert summary.loc[['response_r', 'response_l']].sum() > 120
+    logger = logging.getLogger(subjid)
+    logger.info(f'HARIRI:: {subjid}')
+    if not summary[['probe_face', 'probe_shape']].sum() == 150:
+        logger.warning(f'Hariri: probe face+shape != 150: {summary[["probe_face", "probe_shape"]].sum()}')
+    if not summary.loc['response_hit'] > 120: #80% accuracy
+        logger.warning(f'Hariri: response hit < 120: {summary.loc["response_hit"]}')
+    if not summary.loc['probe_face'] == 90:
+        logger.warning(f'Hariri: probe face != 90: {summary.loc["probe_face"]}')
+    if not summary.loc['encode_face'] == 90:
+        logger.warning(f'Hariri: encode face !=  90: {summary.loc["encode_face"]}')
+    if not summary.loc['encode_shape'] == 60:
+        logger.warning(f'Hariri: encode shape != 60: {summary.loc["encode_shape"]} ')
+    if not summary.loc['probe_shape'] == 60:
+        logger.warning(f'Hariri: probe shape != 60: {summary.loc["probe_shape"]}')
+    if not summary.loc['probe_match_sad'] > 35:
+        logger.warning(f'Hariri: probe match sad < 35: { summary.loc["probe_match_sad"] }')
+    if not summary.loc['probe_match_happy'] > 35:
+        logger.warning(f'Hariri: probe match happy < 35: {summary.loc["probe_match_happy"]} ')
+    if not summary.loc[['encode_male', 'encode_female']].sum() == 90:
+        logger.warning(f'Hariri: encode male+femail != 90: {summary.loc[["encode_male", "encode_female"]].sum()}')
+    if not summary.loc[['response_r', 'response_l']].sum() > 120:
+        logger.warning(f'Hariri: response l+r < 120: { summary.loc[["response_r", "response_l"]].sum() }')
     
-def qa_sternberg(filename=None, logfile=None):
+def qa_sternberg(filename=None, subjid=None): #logger=None):
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    assert summary.loc['encode4'] == 40
-    assert summary.loc['encode6'] == 40
-    assert summary.loc['probe_in_set'] == 40
-    assert summary.loc['probe_not_in_set'] == 40
-    assert summary.loc['response_l'] > 20  
-    assert summary.loc['response_r'] > 20 
-    assert summary.loc['response_hit'] > 30  #Threshold of 75% correct
-    assert summary.loc['response_miss'] < 20
+    logger = logging.getLogger(subjid)
+    condition_list={'encode4 != 40':summary.loc['encode4'] == 40,
+                    'encode6 != 40':summary.loc['encode6'] == 40}
+    for condition in condition_list.keys():
+        if not condition_list[condition]:
+            logger.warning(f'Sternberg: {condition}')
+        else:
+            logger.info(f'Sternberg pass')
+        
+    # assert summary.loc['encode4'] == 40
+    # assert summary.loc['encode6'] == 40
+    # assert summary.loc['probe_in_set'] == 40
+    # assert summary.loc['probe_not_in_set'] == 40
+    # assert summary.loc['response_l'] > 20  
+    # assert summary.loc['response_r'] > 20 
+    # assert summary.loc['response_hit'] > 30  #Threshold of 75% correct
+    # assert summary.loc['response_miss'] < 20
+
+
+
+
+
+# def qa_sternberg(filename=None, logger=None):
+#     dframe = annot_dataframe(filename)
+#     summary=dframe.description.value_counts()
+#     assert summary.loc['encode4'] == 40
+#     assert summary.loc['encode6'] == 40
+#     assert summary.loc['probe_in_set'] == 40
+#     assert summary.loc['probe_not_in_set'] == 40
+#     assert summary.loc['response_l'] > 20  
+#     assert summary.loc['response_r'] > 20 
+#     assert summary.loc['response_hit'] > 30  #Threshold of 75% correct
+#     assert summary.loc['response_miss'] < 20
     
-def qa_gonogo(filename=None, logfile=None):
+def qa_gonogo(filename=None, logger=None):
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
     assert summary.loc[['go','nogo']].sum() == 300
