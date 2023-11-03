@@ -256,8 +256,7 @@ if __name__=='__main__':
         
         Nugent, A.C., Thomas, A.G., Mahoney, M. et al. The NIMH intramural healthy 
         volunteer dataset: A comprehensive MEG, MRI, and behavioral resource. 
-        Sci Data 9, 518 (2022). https://doi.org/10.1038/s41597-022-01623-9
-        ________________________________________________________________________
+        Sci Data 9, 518 (2022). https://doi.org/10.1038/s41597-022-01623-9 .
         hv_process loads options and calls trigger procesing functions located
         in hv_proc/Processing_Scripts.  
         Quality assurance scripts are located in hv_proc/utilities 
@@ -268,6 +267,10 @@ if __name__=='__main__':
         Tasks: Sternberg, Hariri, and gonogo (go/no-go) require psychoPy 
         logfiles
         These are expected to be in nimh_hv/MEG/logfiles folder on biowulf
+        
+        Additional tip::
+        task=airpuff
+for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task ${task} -subjid $subj  2>&1 | tee -a output_${task}.log ; done 
         
         ''') 
 
