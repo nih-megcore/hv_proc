@@ -202,36 +202,49 @@ def main(args):
                                                     plot_sternberg, 
                                                     plot_gonogo)
     
-
-    
     if ('airpuff' in args.QA_task) and has_airpuff:
         airpuff_filename = filter_list_by_task(subj_datasets, 'airpuff')[0]
-        print('Testing airpuff: {}'.format(airpuff_filename))
-        qa_airpuff(airpuff_filename, args.subjid)
+        logger.info('QA Testing airpuff: {}'.format(airpuff_filename))
+        try:
+            qa_airpuff(airpuff_filename, args.subjid)
+        except BaseException as e:
+            logger.exception(f'Airpuff Exception: {e}')
         #plot_airpuff(airpuff_filename)
         
     if ('hariri' in args.QA_task) and has_hariri:
         hariri_filename = filter_list_by_task(subj_datasets, 'hariri')[0]
-        logger.info('Testing hariri: {}'.format(hariri_filename))
-        qa_hariri(hariri_filename, args.subjid)
+        logger.info('QA Testing hariri: {}'.format(hariri_filename))
+        try:
+            qa_hariri(hariri_filename, args.subjid)
+        except BaseException as e:
+            logger.exception(f'Hariri Exception: {e}')
         #plot_hariri(hariri_filename)
 
     if ('sternberg' in args.QA_task) and has_sternberg:
         sternberg_filename = filter_list_by_task(subj_datasets, 'sternberg')[0]
-        print('Testing sternberg: {}'.format(sternberg_filename))
-        qa_sternberg(sternberg_filename, args.subjid)
+        logger.info('QA Testing sternberg: {}'.format(sternberg_filename))
+        try:
+            qa_sternberg(sternberg_filename, args.subjid)
+        except BaseException as e:
+            logger.exception(f'Sternberg Exception: {e}')
         #plot_sternberg(sternberg_filename)
 
     if ('gonogo' in args.QA_task) and has_gonogo:
         gonogo_filename = filter_list_by_task(subj_datasets, 'gonogo')[0]
-        logger.info('Testing gonogo: {}'.format(gonogo_filename))
-        qa_gonogo(gonogo_filename, args.subjid)
+        logger.info('QA Testing gonogo: {}'.format(gonogo_filename))
+        try:
+            qa_gonogo(gonogo_filename, args.subjid)
+        except BaseException as e:
+            logger.exception(f'Gonogo Exception: {e}')
         #plot_gonogo(gonogo_filename)
  
     if ('oddball' in args.QA_task) and has_oddball:
         oddball_filename = filter_list_by_task(subj_datasets, 'oddball')[0]
-        print('Testing oddball: {}'.format(oddball_filename))
-        qa_oddball(oddball_filename, args.subjid)
+        logger.info('QA Testing oddball: {}'.format(oddball_filename))
+        try:
+            qa_oddball(oddball_filename, args.subjid)
+        except BaseException as e:
+            logger.exception(f'Oddball Exception: {e}')
         #plot_oddball(oddball_filename)
         
     if args.scrub_openneuro:
