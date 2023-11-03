@@ -269,7 +269,7 @@ if __name__=='__main__':
         These are expected to be in nimh_hv/MEG/logfiles folder on biowulf
         
         Additional tip::
-        task=airpuff
+        task=airpuff;
 for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task ${task} -subjid $subj  2>&1 | tee -a output_${task}.log ; done 
         
         ''') 
