@@ -98,6 +98,9 @@ def get_logfile(subjid, task=None, logfile_path=None):
 
 def main(args):
     subjid = args.subjid
+    logger = get_subj_logger(args.subjid, session=None, log_dir=default_outlog_path)
+    logger.info(f'Initializing structure :: {args.subjid}')
+    
     #Search all datasets in the default meg path for the subject ID
     subj_datasets=get_subject_datasets(subjid) 
     if subj_datasets == []:
@@ -115,36 +118,54 @@ def main(args):
     if args.airpuff and has_airpuff:
         from hv_proc.Process_scripts import process_airpuff
         filename = filter_list_by_task(subj_datasets, 'airpuff')
-        print('\nProcessing airpuff file: {}'.format(filename[0]))
-        process_airpuff.main(filename[0], write_mrk_file=True) #Does not expect logfile
+        logger.info('\nProcessing airpuff file: {}'.format(filename[0]))
+        try:
+            process_airpuff.main(filename[0], write_mrk_file=True) #Does not expect logfile
+        except BaseException as e:
+            logger.exception(f'Airpuff Exception: {e}')
     if args.hariri and has_hariri:
         from hv_proc.Process_scripts import process_hariri
         filename = filter_list_by_task(subj_datasets, 'hariri')
-        print('\nProcessing hariri file: {}'.format(filename[0]))
+        logger.info('\nProcessing hariri file: {}'.format(filename[0]))
         logfile = get_logfile(subjid, 'hariri')
-        process_hariri.main(filename[0], logfile, write_mrk_file=True)
+        try:
+            process_hariri.main(filename[0], logfile, write_mrk_file=True)
+        except BaseException as e:
+            logger.exception(f'Hariri Exception: {e}')
     if args.sternberg and has_sternberg:
         from hv_proc.Process_scripts import process_sternberg
         filename = filter_list_by_task(subj_datasets, 'sternberg')
-        print('\nProcessing sternberg file: {}'.format(filename[0]))
+        logger.info('\nProcessing sternberg file: {}'.format(filename[0]))
         logfile = get_logfile(subjid, 'sternberg')
-        process_sternberg.main(filename[0], logfile, write_mrk_file=True)
+        try:
+            process_sternberg.main(filename[0], logfile, write_mrk_file=True)
+        except BaseException as e:
+            logger.exception(f'Sternberg Exception: {e}')
     if args.gonogo and has_gonogo:
         from hv_proc.Process_scripts import process_gonogo
         filename = filter_list_by_task(subj_datasets, 'gonogo')
-        print('\nProcessing gonogo file: {}'.format(filename[0]))
+        logger.info('\nProcessing gonogo file: {}'.format(filename[0]))
         logfile = get_logfile(subjid, 'gonogo')
-        process_gonogo.main(filename[0], logfile, write_mrk_file=True)
+        try:
+            process_gonogo.main(filename[0], logfile, write_mrk_file=True)
+        except BaseException as e:
+            logger.exception(f'Gonogo Exception: {e}')
     if args.oddball and has_oddball:
         from hv_proc.Process_scripts import process_oddball
         filename = filter_list_by_task(subj_datasets, 'oddball')
-        print('\nProcessing oddball file: {}'.format(filename[0]))
-        process_oddball.main(filename[0], remove_process_folder=True)
+        logger.info('\nProcessing oddball file: {}'.format(filename[0]))
+        try:
+            process_oddball.main(filename[0], remove_process_folder=True)
+        except BaseException as e:
+            logger.exception(f'Oddball Exception: {e}')
     if args.artifact and has_artifact:
         from hv_proc.Process_scripts import process_artifact_scan
         filename = filter_list_by_task(subj_datasets, 'artifact')
-        print('\nProcessing artifact file: {}'.format(filename[0]))
-        process_artifact_scan.main(filename[0], write_mrk_file=True)
+        logger.info('\nProcessing artifact file: {}'.format(filename[0]))
+        try:
+            process_artifact_scan.main(filename[0], write_mrk_file=True)
+        except BaseException as e:
+            logger.exception(f'Artifact Exception: {e}')
         
     #################### List the output counts for the task #################
     from hv_proc.utilities.response_summary import (print_airpuff_stats, 
@@ -169,8 +190,6 @@ def main(args):
                 print_oddball_stats(filename)
         
     #################### Perform Quality Assurance Tests #####################
-    logger = get_subj_logger(args.subjid, session=None, log_dir=default_outlog_path)
-    logger.info(f'Initializing structure :: {args.subjid}')
     from hv_proc.utilities.marker_quality_assurance import (qa_oddball, 
                                                             qa_airpuff,
                                                             qa_hariri, 
