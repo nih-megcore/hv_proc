@@ -76,7 +76,7 @@ def qa_airpuff(filename=None, subjid=None):
     logger.info(f'Airpuff:: {subjid}')
     if not summary.loc['stim'] == 425:
         logger.warning('Airpuff stim count != 425: {summary.loc["stim"]}')
-    if not sumamry.loc['missingstim'] == 75:
+    if not summary.loc['missingstim'] == 75:
         logger.warning('Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
 
 def qa_oddball(filename=None, subjid=None):
@@ -156,7 +156,7 @@ def qa_sternberg(filename=None, subjid=None): #logger=None):
 def qa_gonogo(filename=None, subjid=None):
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    logger = loggin.getLogger(subjid)
+    logger = logging.getLogger(subjid)
     if not summary.loc[['go','nogo']].sum() == 300:
         logger.warning(f'Go+Nogo  < 300 : {summary.loc[["go","nogo"]].sum()}')
     if not summary.loc['go'] > 180: 
