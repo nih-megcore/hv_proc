@@ -130,60 +130,48 @@ def qa_sternberg(filename=None, subjid=None): #logger=None):
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
-    condition_list={'encode4 != 40':summary.loc['encode4'] == 40,
-                    'encode6 != 40':summary.loc['encode6'] == 40}
-    for condition in condition_list.keys():
-        if not condition_list[condition]:
-            logger.warning(f'Sternberg: {condition}')
-        else:
-            logger.info(f'Sternberg pass')
-        
-    # assert summary.loc['encode4'] == 40
-    # assert summary.loc['encode6'] == 40
-    # assert summary.loc['probe_in_set'] == 40
-    # assert summary.loc['probe_not_in_set'] == 40
-    # assert summary.loc['response_l'] > 20  
-    # assert summary.loc['response_r'] > 20 
-    # assert summary.loc['response_hit'] > 30  #Threshold of 75% correct
-    # assert summary.loc['response_miss'] < 20
+    # condition_list={'encode4 != 40':summary.loc['encode4'] == 40,
+    #                 'encode6 != 40':summary.loc['encode6'] == 40}
+    # for condition in condition_list.keys():
+    #     if not condition_list[condition]:
+    #         logger.warning(f'Sternberg: {condition}')
+    #     else:
+    #         logger.info(f'Sternberg pass')
+    if not summary.loc['encode4'] == 40:
+        logger.warning(f'Sternberg encode4 !=40: {summary.loc["encode4"]}')
+    if not summary.loc['encode6'] == 40:
+        logger.warning(f'Sternberg encode6 !=40: {summary.loc["encode6"]}')
+    if not summary.loc['probe_in_set'] == 40:
+        logger.warning(f'Probe in set != 40 {summary.loc["probe_in_set"]}')
+    if not summary.loc['probe_not_in_set'] == 40:
+        logger.warning(f'Probe not in set != 40: {summary.loc["probe_not_in_set"]}')
+    if not summary.loc['response_l'] > 20:
+        logger.warning(f'ResponseL < 20: { summary.loc["response_l"]}')
+    if not summary.loc['response_r'] > 20:
+        logger.warning(f'ResponseR < 20: {summary.loc["response_r"]} ')
+    if not summary.loc['response_hit'] > 30:    #Threshold of 75% correct
+        logger.warning(f'Response hit < 30 (75%): {summary.loc["response_hit"] }')
+    if not summary.loc['response_miss'] < 20:
+        logger.warning(f'Response Miss > 20 : {summary.loc["response_miss"]}')
 
-
-
-
-
-# def qa_sternberg(filename=None, logger=None):
-#     dframe = annot_dataframe(filename)
-#     summary=dframe.description.value_counts()
-#     assert summary.loc['encode4'] == 40
-#     assert summary.loc['encode6'] == 40
-#     assert summary.loc['probe_in_set'] == 40
-#     assert summary.loc['probe_not_in_set'] == 40
-#     assert summary.loc['response_l'] > 20  
-#     assert summary.loc['response_r'] > 20 
-#     assert summary.loc['response_hit'] > 30  #Threshold of 75% correct
-#     assert summary.loc['response_miss'] < 20
-    
-def qa_gonogo(filename=None, logger=None):
+def qa_gonogo(filename=None, subjid=None):
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    assert summary.loc[['go','nogo']].sum() == 300
-    assert summary.loc['go'] > 180
-    assert summary.loc['nogo'] > 80
-    assert summary.loc['response_hit'] > 150
-    assert summary.loc['response_correct_rejection'] > 75
+    logger = loggin.getLogger(subjid)
+    if not summary.loc[['go','nogo']].sum() == 300:
+        logger.warning(f'Go+Nogo  < 300 : {summary.loc[["go","nogo"]].sum()}')
+    if not summary.loc['go'] > 180: 
+        logger.warning(f'Go condition < 180: {summary.loc["go"]}')
+    if not summary.loc['nogo'] > 80:
+        logger.warning(f'Nogo condition < 80: {summary.loc["nogo"]} ')
+    if not summary.loc['response_hit'] > 150:
+        logger.warning(f'Response hit < 150: { summary.loc["response_hit"]}')
+    if not summary.loc['response_correct_rejection'] > 75:
+        logger.warning(f'Response correct rej < 75: {summary.loc["response_correct_rejection"]}')
     if 'response_false_alarm' in summary.index:
-        assert summary.loc['response_false_alarm'] < 30
+        if  summary.loc['response_false_alarm'] < 30:
+            logger.warning(f'Response false alarm > 30: {summary.loc["response_false_alarm"]'})
     
-# def get_filename_match(pattern):
-#     '''Return specific filenames that match a pattern'''
-#     output = glob.glob(pattern)
-#     if len(output) == 1:
-#         return output[0]
-#     elif len(output) > 1:
-#         raise ValueError('More than one match')
-#     # elif len(output) == 0:
-#     #     return ''
-        
         
 def get_all_filenames(topdir):
     '''Returns all present filenames in a dictionary for the HV datasets.
