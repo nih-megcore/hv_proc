@@ -84,7 +84,6 @@ def qa_oddball(filename=None, subjid=None):
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
     logger.info(f'Oddball:: {subjid}')
-    logger.info(f'Oddball standard: {summary.loc["standard"]}')
     if not summary.loc['standard'] >= 210:
         logger.warning(f'Oddball standard not >= 210: {summary.loc["standard"]}')
     if not summary.loc['distractor'] == 45:
@@ -170,7 +169,7 @@ def qa_gonogo(filename=None, subjid=None):
         logger.warning(f'Response correct rej < 75: {summary.loc["response_correct_rejection"]}')
     if 'response_false_alarm' in summary.index:
         if  summary.loc['response_false_alarm'] < 30:
-            logger.warning(f'Response false alarm > 30: {summary.loc["response_false_alarm"]'})
+            logger.warning(f'Response false alarm > 30: {summary.loc["response_false_alarm"]}')
     
         
 def get_all_filenames(topdir):
