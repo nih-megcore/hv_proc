@@ -168,7 +168,7 @@ def qa_gonogo(filename=None, subjid=None):
     if not summary.loc['response_correct_rejection'] > 75:
         logger.warning(f'Response correct rej < 75: {summary.loc["response_correct_rejection"]}')
     if 'response_false_alarm' in summary.index:
-        if  summary.loc['response_false_alarm'] < 30:
+        if  summary.loc['response_false_alarm'] > 30:
             logger.warning(f'Response false alarm > 30: {summary.loc["response_false_alarm"]}')
     
         
