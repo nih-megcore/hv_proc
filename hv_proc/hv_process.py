@@ -202,6 +202,9 @@ def main(args):
                                                     plot_sternberg, 
                                                     plot_gonogo)
     
+    logger = get_subj_logger(args.subjid, session='QA', log_dir=default_outlog_path)
+    logger.info(f'Initializing structure :: {args.subjid}')
+    
     if ('airpuff' in args.QA_task) and has_airpuff:
         airpuff_filename = filter_list_by_task(subj_datasets, 'airpuff')[0]
         logger.info('QA Testing airpuff: {}'.format(airpuff_filename))
