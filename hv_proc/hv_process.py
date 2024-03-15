@@ -39,7 +39,10 @@ def get_subj_logger(subjid, session, log_dir=None):
          if logging.FileHandler in tmp_:
              return subj_logger
      else: # first time requested, add the file handler
-         fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
+         if session==None:
+             fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
+         else:
+             fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_{session}_log.txt')
          fileHandle.setLevel(logging.INFO)
          fileHandle.setFormatter(logging.Formatter(fmt)) 
          subj_logger.addHandler(fileHandle)
@@ -202,6 +205,10 @@ def main(args):
                                                     plot_sternberg, 
                                                     plot_gonogo)
     
+    del logger
+    from importlib import reload
+    logging.shutdown()
+    reload(logging)
     logger = get_subj_logger(args.subjid, session='QA', log_dir=default_outlog_path)
     logger.info(f'Initializing structure :: {args.subjid}')
     
