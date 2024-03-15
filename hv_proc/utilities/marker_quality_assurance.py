@@ -162,16 +162,16 @@ def qa_gonogo(filename=None, subjid=None):
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
-    if not summary.loc[['go','nogo']].sum() == 300:
-        logger.warning(f'{task}: Go+Nogo  < 300 : {summary.loc[["go","nogo"]].sum()}')
-    if not summary.loc['go'] > 180: 
-        logger.warning(f'{task}: Go condition < 180: {summary.loc["go"]}')
-    if not summary.loc['nogo'] > 80:
-        logger.warning(f'{task}: Nogo condition < 80: {summary.loc["nogo"]} ')
-    if not summary.loc['response_hit'] > 150:
-        logger.warning(f'{task}: Response hit < 150: { summary.loc["response_hit"]}')
-    if not summary.loc['response_correct_rejection'] > 75:
-        logger.warning(f'{task}: Response correct rej < 75: {summary.loc["response_correct_rejection"]}')
+    if not summary.loc[['go','nogo']].sum() >= 295:
+        logger.warning(f'{task}: Go+Nogo  > 295 : {summary.loc[["go","nogo"]].sum()}')
+    if not summary.loc['go'] > 175: 
+        logger.warning(f'{task}: Go condition < 175: {summary.loc["go"]}')
+    if not summary.loc['nogo'] > 75:
+        logger.warning(f'{task}: Nogo condition < 75: {summary.loc["nogo"]} ')
+    if not summary.loc['response_hit'] > 145:
+        logger.warning(f'{task}: Response hit < 145: { summary.loc["response_hit"]}')
+    if not summary.loc['response_correct_rejection'] > 70:
+        logger.warning(f'{task}: Response correct rej < 70: {summary.loc["response_correct_rejection"]}')
     if 'response_false_alarm' in summary.index:
         if  summary.loc['response_false_alarm'] > 30:
             logger.warning(f'{task}: Response false alarm > 30: {summary.loc["response_false_alarm"]}')
