@@ -19,7 +19,7 @@ def convert_annotations_to_dframe(annot):
 
 def annot_dataframe(filename):
     '''Loads the filename and returns a dataframe'''
-    raw = mne.io.read_raw_ctf(filename, verbose=False) 
+    raw = mne.io.read_raw_ctf(filename, verbose=False, system_clock='ignore') 
     annot = raw.annotations
     dataframe = convert_annotations_to_dframe(annot)
     return dataframe
