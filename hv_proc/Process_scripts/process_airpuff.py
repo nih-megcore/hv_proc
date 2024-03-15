@@ -20,7 +20,7 @@ def airpuff_triggers_to_dframe(filename):
                          lag_condition='Trigger', marker_on='lag', window=[0, 0.5]) 
     
     #Adjust time lag from stim to airpuff
-    airpuff_lag = 0.042   ###### VERIFY THIS NUMBER - time delay from stim <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    airpuff_lag = 0.042   
     airpuff_indices = dframe[dframe['condition']=='stim'].index
     dframe.loc[airpuff_indices, 'onset'] += airpuff_lag
     
