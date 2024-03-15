@@ -53,6 +53,10 @@ def main(filename, logfile, write_mrk_file=True):
                      derivThresh=0.5, channel='UADC016', invert=invert_boolean)
        
     ppt = detect_digital(filename, channel='UPPT001')
+    if ppt.condition[0]=='128':
+        logfile_offset = ppt.onset[0]
+    else:
+        logfile_offset = 0
     
     
     ############  Process the log file and interpret conditions ##############
@@ -60,6 +64,8 @@ def main(filename, logfile, write_mrk_file=True):
     logdata = psychopy_logfile_to_dframe(logfile)
     logdata = logdata[logdata.condition.str[0:5].isin(['Encod','Probe'])]
     logdata=logdata.reset_index(drop=True)  #Indices for probe are now encode+1
+    logdata.onset+=logfile_offset
+    
     
     #Correct Logfile timing to the projector
     tmp = logdata.copy(deep=True)
