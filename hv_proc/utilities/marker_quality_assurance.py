@@ -70,62 +70,66 @@ def log(function):
 # These verify that the expected outputs have the right number of triggers
 @log
 def qa_airpuff(filename=None, subjid=None):
+    task='airpuff'
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
     logger.info(f'Airpuff:: {subjid}')
     if not summary.loc['stim'] == 425:
-        logger.warning('Airpuff stim count != 425: {summary.loc["stim"]}')
+        logger.warning(f'{task}: Airpuff stim count != 425: {summary.loc["stim"]}')
     if not summary.loc['missingstim'] == 75:
-        logger.warning('Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
+        logger.warning(f'{task}: Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
 
 def qa_oddball(filename=None, subjid=None):
+    task='oddball'
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
     logger.info(f'Oddball:: {subjid}')
     if not summary.loc['standard'] >= 210:
-        logger.warning(f'Oddball standard not >= 210: {summary.loc["standard"]}')
+        logger.warning(f'{task}: Oddball standard not >= 210: {summary.loc["standard"]}')
     if not summary.loc['distractor'] == 45:
-        logger.warning(f'Oddball distractor != 45: {summary.loc["distractor"]}')
+        logger.warning(f'{task}: Oddball distractor != 45: {summary.loc["distractor"]}')
     if not summary.loc['target'] == 45:
-        logger.warning(f'Oddball target != 45: {summary.loc["target"]}')
+        logger.warning(f'{task}: Oddball target != 45: {summary.loc["target"]}')
     if not summary.loc['response_hit']>30:
-        logger.warning(f'Oddball response hit < 30: {summary.loc["response hit"]}')
+        logger.warning(f'{task}: Oddball response hit < 30: {summary.loc["response hit"]}')
     if 'response_miss' in summary.index:
         if summary.loc['response_miss']>20:
-            logger.warning(f'Oddball response miss > 20: {summary.loc["response_miss"]}')
+            logger.warning(f'{task}: Oddball response miss > 20: {summary.loc["response_miss"]}')
 
 @log
 def qa_hariri(filename=None, subjid=None):
     '''Load the hariri dataset and verify that the emotional and contrast stims
     sum to the appropriate amount'''
+    task='hariri'
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
     logger.info(f'HARIRI:: {subjid}')
     if not summary[['probe_face', 'probe_shape']].sum() == 150:
-        logger.warning(f'Hariri: probe face+shape != 150: {summary[["probe_face", "probe_shape"]].sum()}')
+        logger.warning(f'{task}: Hariri: probe face+shape != 150: {summary[["probe_face", "probe_shape"]].sum()}')
     if not summary.loc['response_hit'] > 120: #80% accuracy
-        logger.warning(f'Hariri: response hit < 120: {summary.loc["response_hit"]}')
+        logger.warning(f'{task}: Hariri: response hit < 120: {summary.loc["response_hit"]}')
     if not summary.loc['probe_face'] == 90:
-        logger.warning(f'Hariri: probe face != 90: {summary.loc["probe_face"]}')
+        logger.warning(f'{task}: Hariri: probe face != 90: {summary.loc["probe_face"]}')
     if not summary.loc['encode_face'] == 90:
-        logger.warning(f'Hariri: encode face !=  90: {summary.loc["encode_face"]}')
+        logger.warning(f'{task}: Hariri: encode face !=  90: {summary.loc["encode_face"]}')
     if not summary.loc['encode_shape'] == 60:
-        logger.warning(f'Hariri: encode shape != 60: {summary.loc["encode_shape"]} ')
+        logger.warning(f'{task}: Hariri: encode shape != 60: {summary.loc["encode_shape"]} ')
     if not summary.loc['probe_shape'] == 60:
-        logger.warning(f'Hariri: probe shape != 60: {summary.loc["probe_shape"]}')
+        logger.warning(f'{task}: Hariri: probe shape != 60: {summary.loc["probe_shape"]}')
     if not summary.loc['probe_match_sad'] > 35:
-        logger.warning(f'Hariri: probe match sad < 35: { summary.loc["probe_match_sad"] }')
+        logger.warning(f'{task}: Hariri: probe match sad < 35: { summary.loc["probe_match_sad"] }')
     if not summary.loc['probe_match_happy'] > 35:
-        logger.warning(f'Hariri: probe match happy < 35: {summary.loc["probe_match_happy"]} ')
+        logger.warning(f'{task}: Hariri: probe match happy < 35: {summary.loc["probe_match_happy"]} ')
     if not summary.loc[['encode_male', 'encode_female']].sum() == 90:
-        logger.warning(f'Hariri: encode male+femail != 90: {summary.loc[["encode_male", "encode_female"]].sum()}')
+        logger.warning(f'{task}: Hariri: encode male+femail != 90: {summary.loc[["encode_male", "encode_female"]].sum()}')
     if not summary.loc[['response_r', 'response_l']].sum() > 120:
-        logger.warning(f'Hariri: response l+r < 120: { summary.loc[["response_r", "response_l"]].sum() }')
+        logger.warning(f'{task}: Hariri: response l+r < 120: { summary.loc[["response_r", "response_l"]].sum() }')
     
 def qa_sternberg(filename=None, subjid=None): #logger=None):
+    task = 'sternberg'
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
@@ -137,39 +141,40 @@ def qa_sternberg(filename=None, subjid=None): #logger=None):
     #     else:
     #         logger.info(f'Sternberg pass')
     if not summary.loc['encode4'] == 40:
-        logger.warning(f'Sternberg encode4 !=40: {summary.loc["encode4"]}')
+        logger.warning(f'{task}: Sternberg encode4 !=40: {summary.loc["encode4"]}')
     if not summary.loc['encode6'] == 40:
-        logger.warning(f'Sternberg encode6 !=40: {summary.loc["encode6"]}')
+        logger.warning(f'{task}: Sternberg encode6 !=40: {summary.loc["encode6"]}')
     if not summary.loc['probe_in_set'] == 40:
-        logger.warning(f'Probe in set != 40 {summary.loc["probe_in_set"]}')
+        logger.warning(f'{task}: Probe in set != 40 {summary.loc["probe_in_set"]}')
     if not summary.loc['probe_not_in_set'] == 40:
-        logger.warning(f'Probe not in set != 40: {summary.loc["probe_not_in_set"]}')
+        logger.warning(f'{task}: Probe not in set != 40: {summary.loc["probe_not_in_set"]}')
     if not summary.loc['response_l'] > 20:
-        logger.warning(f'ResponseL < 20: { summary.loc["response_l"]}')
+        logger.warning(f'{task}: ResponseL < 20: { summary.loc["response_l"]}')
     if not summary.loc['response_r'] > 20:
-        logger.warning(f'ResponseR < 20: {summary.loc["response_r"]} ')
+        logger.warning(f'{task}: ResponseR < 20: {summary.loc["response_r"]} ')
     if not summary.loc['response_hit'] > 30:    #Threshold of 75% correct
-        logger.warning(f'Response hit < 30 (75%): {summary.loc["response_hit"] }')
+        logger.warning(f'{task}: Response hit < 30 (75%): {summary.loc["response_hit"] }')
     if not summary.loc['response_miss'] < 20:
-        logger.warning(f'Response Miss > 20 : {summary.loc["response_miss"]}')
+        logger.warning(f'{task}: Response Miss > 20 : {summary.loc["response_miss"]}')
 
 def qa_gonogo(filename=None, subjid=None):
+    task='gonogo'
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
     logger = logging.getLogger(subjid)
     if not summary.loc[['go','nogo']].sum() == 300:
-        logger.warning(f'Go+Nogo  < 300 : {summary.loc[["go","nogo"]].sum()}')
+        logger.warning(f'{task}: Go+Nogo  < 300 : {summary.loc[["go","nogo"]].sum()}')
     if not summary.loc['go'] > 180: 
-        logger.warning(f'Go condition < 180: {summary.loc["go"]}')
+        logger.warning(f'{task}: Go condition < 180: {summary.loc["go"]}')
     if not summary.loc['nogo'] > 80:
-        logger.warning(f'Nogo condition < 80: {summary.loc["nogo"]} ')
+        logger.warning(f'{task}: Nogo condition < 80: {summary.loc["nogo"]} ')
     if not summary.loc['response_hit'] > 150:
-        logger.warning(f'Response hit < 150: { summary.loc["response_hit"]}')
+        logger.warning(f'{task}: Response hit < 150: { summary.loc["response_hit"]}')
     if not summary.loc['response_correct_rejection'] > 75:
-        logger.warning(f'Response correct rej < 75: {summary.loc["response_correct_rejection"]}')
+        logger.warning(f'{task}: Response correct rej < 75: {summary.loc["response_correct_rejection"]}')
     if 'response_false_alarm' in summary.index:
         if  summary.loc['response_false_alarm'] > 30:
-            logger.warning(f'Response false alarm > 30: {summary.loc["response_false_alarm"]}')
+            logger.warning(f'{task}: Response false alarm > 30: {summary.loc["response_false_alarm"]}')
     
         
 def get_all_filenames(topdir):
