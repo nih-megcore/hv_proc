@@ -55,7 +55,7 @@ def main(filename, logfile, write_mrk_file=True):
     
     invert_boolean = check_analog_inverted(filename, ch_name='UADC016')
     projector = threshold_detect(dsname=filename, mark='projector', deadTime=0.5, 
-                     derivThresh=0.5, channel='UADC016', invert=invert_boolean)
+                     derivThresh=0.4, channel='UADC016', invert=invert_boolean)
        
     ppt = detect_digital(filename, channel='UPPT001')
     
@@ -66,6 +66,7 @@ def main(filename, logfile, write_mrk_file=True):
     logdata=logdata[logdata.condition != 'Correct key pressed']
     logdata=logdata[logdata.condition != 'Fixation']
     logdata=logdata[logdata.condition != 'StartFixation']
+    logdata=logdata[logdata.condition != 'Mouse']
 
     logdata=logdata.reset_index(drop=True)  #Indices for probe are now encode+1
     
