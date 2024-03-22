@@ -48,9 +48,9 @@ def main(filename, logfile, write_mrk_file=True):
                      derivThresh=0.5, channel='UADC007')    
     
     
-    invert_boolean = check_analog_inverted(filename, ch_name='UADC016')
-    projector = threshold_detect(dsname=filename, mark='projector', deadTime=0.5, 
-                     derivThresh=0.5, channel='UADC016', invert=invert_boolean)
+    # invert_boolean = check_analog_inverted(filename, ch_name='UADC016')
+    # projector = threshold_detect(dsname=filename, mark='projector', deadTime=0.5, 
+    #                  derivThresh=0.5, channel='UADC016', invert=invert_boolean)
        
     ppt = detect_digital(filename, channel='UPPT001')
     if ppt.condition[0]=='128':
@@ -58,6 +58,8 @@ def main(filename, logfile, write_mrk_file=True):
     else:
         logfile_offset = 0
     
+    est_proj_delay = 0.004  #This was the Max Likelihood estimated from the successful datasets
+    ppt.onset += est_proj_delay
     
     ############  Process the log file and interpret conditions ##############
     #Load the log and only keep the encode and probe values
@@ -67,13 +69,21 @@ def main(filename, logfile, write_mrk_file=True):
     logdata.onset+=logfile_offset
     
     
-    #Correct Logfile timing to the projector
+    #Correct Logfile timing to PPT 
+    ppt = ppt.loc[ppt.index%3 != 2]  #Clear out the extraneous return trig
     tmp = logdata.copy(deep=True)
     tmp.condition = 'temp'
-    tmp = append_conditions([tmp, projector])
-    new_onsets = parse_marks(tmp, lead_condition='projector', lag_condition='temp',
-                             append_result=False, marker_name='correct_onset', 
-                             marker_on='lead', window=[-0.5, 0.5])
+    tmp = append_conditions([tmp, ppt])
+    tmp.loc[tmp.channel=='UPPT001', 'condition'] = 'ppt'
+    
+    # new_onsets = parse_marks(tmp, lead_condition='temp', lag_condition='ppt',
+    #                          append_result=False, marker_name='correct_onset', 
+    #                          marker_on='lag', window=[-0.5, 0.5])
+    
+
+    new_onsets = parse_marks(tmp, lead_condition='ppt', lag_condition='temp',
+                              append_result=False, marker_name='correct_onset', 
+                              marker_on='lead', window=[-0.5, 0.5])
     
     #Corrected onsets timing must be the same size as original timing
     assert len(logdata) == len(new_onsets) 
@@ -108,7 +118,7 @@ def main(filename, logfile, write_mrk_file=True):
     encode6 = logdata[logdata['Type']=='Encode6'][col_set]
     encode6.condition = 'encode6'
     
-    dframe = append_conditions([response_l, response_r, projector, ppt,  
+    dframe = append_conditions([response_l, response_r, ppt,  
                                 in_set_dframe, out_set_dframe, 
                                 encode4, encode6])
     

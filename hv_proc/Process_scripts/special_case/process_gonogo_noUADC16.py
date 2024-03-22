@@ -51,6 +51,8 @@ def main(filename=None, logfile=None, write_mrk_file=True):
     #                  derivThresh=0.4, ampThresh=0.4, channel='UADC016', invert=invert_boolean)
        
     ppt = detect_digital(filename, channel='UPPT001')
+    est_proj_delay = 0.004  #This was the Max Likelihood estimated from the successful datasets
+    ppt.onset += est_proj_delay
     
     logdata = psychopy_logfile_to_dframe(logfile)
     

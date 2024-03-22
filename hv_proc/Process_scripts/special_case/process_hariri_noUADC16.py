@@ -62,6 +62,8 @@ def main(filename, logfile, write_mrk_file=True):
     #Remove the response PPT trigger 
     idxs = ppt[ppt.index %3 != 2].index
     ppt = ppt.loc[idxs]
+    est_proj_delay = 0.004  #This was the Max Likelihood estimated from the successful datasets
+    ppt.onset += est_proj_delay
     
     
     ############  Process the log file and interpret conditions ##############
