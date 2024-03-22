@@ -268,7 +268,7 @@ def parse_marks(dframe=None, lead_condition=None, lag_condition=None, window=[0,
     else:
         return new_condition
     
-def crop_logfile_overflow(dframe, end_buffer=0.5):
+def crop_logfile_overflow(dframe, end_buffer=0.5, channel=None):
     '''
     Sometimes the stimulus continues to present when the acquisition has finished.
     This is a utility function to crop off the end of the logfile.
@@ -276,13 +276,19 @@ def crop_logfile_overflow(dframe, end_buffer=0.5):
     Parameters
     ----------
     dframe : Event dataframe
+    channel : 
+        Set this if trying to correct to parrallel port - otherwise defaults to 
+        None and the projector will be used instead
 
     Returns
     -------
     dataframe
 
     '''
-    final_proj = dframe[dframe.condition=='projector'].iloc[-1].onset
+    if channel != None:  #Fix for PPT only datasets
+        final_proj = dframe[dframe.channel==channel].iloc[-1].onset
+    else:
+        final_proj = dframe[dframe.condition=='projector'].iloc[-1].onset
     crop_bool = dframe[dframe.channel=='logfile'].onset > final_proj+end_buffer
     drop_idxs = crop_bool[crop_bool==True].index
     return dframe.drop(drop_idxs) 
