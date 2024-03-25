@@ -5,7 +5,7 @@ Created on Tue Mar 17 08:59:50 2020
 
 @author: stoutjd
 """
-import os, glob
+import os, glob, sys
 import logging
 
 
@@ -46,6 +46,9 @@ def get_subj_logger(subjid, session, log_dir=None):
          fileHandle.setLevel(logging.INFO)
          fileHandle.setFormatter(logging.Formatter(fmt)) 
          subj_logger.addHandler(fileHandle)
+         streamHandle=logging.StreamHandler(sys.stdout)
+         streamHandle.setFormatter(logging.Formatter(fmt))
+         subj_logger.addHandler(streamHandle)
          subj_logger.info('Initializing subject level HV log')
      return subj_logger   
 
