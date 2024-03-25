@@ -202,6 +202,13 @@ def main(args):
                                                             qa_sternberg,
                                                             qa_gonogo, 
                                                             )
+    # Setup logging "decorator" on all of these QA methods
+    qa_oddball = log(qa_oddball)
+    qa_airpuff = log(qa_airpuff)
+    qa_hariri = log(qa_hariri)
+    qa_sternberg = log(qa_sternberg)
+    qa_gonogo = log(qa_gonogo)
+    
     from hv_proc.utilities.print_QA_images import (plot_airpuff,
                                                     plot_oddball,
                                                     plot_hariri,
