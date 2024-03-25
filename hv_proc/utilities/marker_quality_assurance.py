@@ -13,7 +13,7 @@ Loops over all HV protocol datasets and checks the number of triggers vs expecte
 import mne, glob, copy
 import pandas as pd
 import numpy as np
-import os
+import os, sys
 import logging
 
 # logger=logging.getLogger(__name__)
@@ -32,25 +32,26 @@ def annot_dataframe(filename):
     dataframe = convert_annotations_to_dframe(annot)
     return dataframe
 
-# def get_subj_logger(subjid, log_dir=None):
-#       '''Return the subject specific logger.
-#       This is particularly useful in the multiprocessing where logging is not
-#       necessarily in order'''
-#       fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
-#       sub_ses = f'{subjid}'
-#       subj_logger = logging.getLogger(sub_ses)
-#       subj_logger.setLevel(logging.INFO)
-#       if subj_logger.handlers != []: # if not first time requested, use the file handler already defined
-#           tmp_ = [type(i) for i in subj_logger.handlers ]
-#           if logging.FileHandler in tmp_:
-#               return subj_logger
-#       else: # first time requested, add the file handler
-#           fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
-#           fileHandle.setLevel(logging.INFO)
-#           fileHandle.setFormatter(logging.Formatter(fmt)) 
-#           subj_logger.addHandler(fileHandle)
-#           subj_logger.info('Initializing subject level HV log')
-#       return subj_logger 
+def get_subj_logger(subjid, log_dir=None):
+      '''Return the subject specific logger.
+      This is particularly useful in the multiprocessing where logging is not
+      necessarily in order'''
+      fmt = '%(asctime)s :: %(levelname)s :: %(message)s'
+      sub_ses = f'{subjid}'
+      subj_logger = logging.getLogger(sub_ses)
+      subj_logger.setLevel(logging.INFO)
+      if subj_logger.handlers != []: # if not first time requested, use the file handler already defined
+          tmp_ = [type(i) for i in subj_logger.handlers ]
+          if logging.FileHandler in tmp_:
+              return subj_logger
+      else: # first time requested, add the file handler
+          fileHandle = logging.FileHandler(f'{log_dir}/{subjid}_log.txt')
+          fileHandle.setLevel(logging.INFO)
+          fileHandle.setFormatter(logging.Formatter(fmt)) 
+          subj_logger.addHandler(fileHandle)
+          subj_logger.addHandler(logging.StreamHandler(sys.stdout))
+          subj_logger.info('Initializing subject level HV log')
+      return subj_logger 
 
 
 def log(function):
@@ -80,6 +81,7 @@ def qa_airpuff(filename=None, subjid=None):
     if not summary.loc['missingstim'] == 75:
         logger.warning(f'{task}: Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
 
+@log
 def qa_oddball(filename=None, subjid=None):
     task='oddball'
     dframe=annot_dataframe(filename)
@@ -127,7 +129,8 @@ def qa_hariri(filename=None, subjid=None):
         logger.warning(f'{task}: Hariri: encode male+femail != 90: {summary.loc[["encode_male", "encode_female"]].sum()}')
     if not summary.loc[['response_r', 'response_l']].sum() > 120:
         logger.warning(f'{task}: Hariri: response l+r < 120: { summary.loc[["response_r", "response_l"]].sum() }')
-    
+
+@log    
 def qa_sternberg(filename=None, subjid=None): #logger=None):
     task = 'sternberg'
     dframe = annot_dataframe(filename)
@@ -157,6 +160,7 @@ def qa_sternberg(filename=None, subjid=None): #logger=None):
     if not summary.loc['response_miss'] < 20:
         logger.warning(f'{task}: Response Miss > 20 : {summary.loc["response_miss"]}')
 
+@log
 def qa_gonogo(filename=None, subjid=None):
     task='gonogo'
     dframe = annot_dataframe(filename)
