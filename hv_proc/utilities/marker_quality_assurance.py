@@ -74,7 +74,8 @@ def qa_airpuff(filename=None, subjid=None):
     task='airpuff'
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    logger = logging.getLogger(subjid)
+    logger = get_subj_logger(subjid, log_dir=logdir)
+    # logger = logging.getLogger(subjid)
     logger.info(f'Airpuff:: {subjid}')
     if not summary.loc['stim'] == 425:
         logger.warning(f'{task}: Airpuff stim count != 425: {summary.loc["stim"]}')
@@ -86,7 +87,8 @@ def qa_oddball(filename=None, subjid=None):
     task='oddball'
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    logger = logging.getLogger(subjid)
+    # logger = logging.getLogger(subjid)
+    logger = get_subj_logger(subjid, log_dir=logdir)
     logger.info(f'Oddball:: {subjid}')
     if not summary.loc['standard'] >= 210:
         logger.warning(f'{task}: Oddball standard not >= 210: {summary.loc["standard"]}')
@@ -107,7 +109,8 @@ def qa_hariri(filename=None, subjid=None):
     task='hariri'
     dframe=annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    logger = logging.getLogger(subjid)
+    logger = get_subj_logger(subjid, log_dir=logdir)
+    # logger = logging.getLogger(subjid)
     logger.info(f'HARIRI:: {subjid}')
     if not summary[['probe_face', 'probe_shape']].sum() == 150:
         logger.warning(f'{task}: Hariri: probe face+shape != 150: {summary[["probe_face", "probe_shape"]].sum()}')
@@ -135,7 +138,8 @@ def qa_sternberg(filename=None, subjid=None): #logger=None):
     task = 'sternberg'
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    logger = logging.getLogger(subjid)
+    # logger = logging.getLogger(subjid)
+    logger = get_subj_logger(subjid, log_dir=logdir)
     # condition_list={'encode4 != 40':summary.loc['encode4'] == 40,
     #                 'encode6 != 40':summary.loc['encode6'] == 40}
     # for condition in condition_list.keys():
@@ -165,7 +169,8 @@ def qa_gonogo(filename=None, subjid=None):
     task='gonogo'
     dframe = annot_dataframe(filename)
     summary=dframe.description.value_counts()
-    logger = logging.getLogger(subjid)
+    # logger = logging.getLogger(subjid)
+    logger = get_subj_logger(subjid, log_dir=logdir)
     if not summary.loc[['go','nogo']].sum() >= 295:
         logger.warning(f'{task}: Go+Nogo  > 295 : {summary.loc[["go","nogo"]].sum()}')
     if not summary.loc['go'] > 175: 
@@ -241,7 +246,7 @@ if __name__=='__main__':
                         help='''Filename of dataset (not folder) to load into a
                         dataframe and print the counts of all the markers.
                         This is helpful to assess test failures''' )
-    #parser.add_argument("-write_log", help='', action='store_true')
+    # parser.add_argument("-write_log", help='', action='store_true')
     args=parser.parse_args()
     
 
