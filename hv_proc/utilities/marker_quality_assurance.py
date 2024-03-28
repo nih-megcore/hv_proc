@@ -18,6 +18,8 @@ import logging
 
 # logger=logging.getLogger(__name__)
 # logger.setLevel(level=logging.INFO)
+global logdir 
+logdir = '/data/NIMH_MEGCoregroup/NIMH_HV/bids_staging_batch3/out_logs'
 
 def convert_annotations_to_dframe(annot):
     '''Code snippet pulled from mne python mne.annotations._annotations_to_csv()'''
@@ -82,7 +84,6 @@ def qa_airpuff(filename=None, subjid=None):
     if not summary.loc['missingstim'] == 75:
         logger.warning(f'{task}: Airpuff missing stim count != 75: {summary.loc["missingstim"]}')
 
-@log
 def qa_oddball(filename=None, subjid=None):
     task='oddball'
     dframe=annot_dataframe(filename)
@@ -162,7 +163,6 @@ def qa_sternberg(filename=None, subjid=None): #logger=None):
     if not summary.loc['response_miss'] < 20:
         logger.warning(f'{task}: Response Miss > 20 : {summary.loc["response_miss"]}')
 
-@log
 def qa_gonogo(filename=None, subjid=None):
     task='gonogo'
     dframe = annot_dataframe(filename)
