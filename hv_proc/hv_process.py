@@ -5,7 +5,7 @@ Created on Tue Mar 17 08:59:50 2020
 
 @author: stoutjd
 """
-import os, glob
+import os, glob, sys
 import logging
 
 
@@ -46,18 +46,22 @@ def get_subj_logger(subjid, session, log_dir=None):
          fileHandle.setLevel(logging.INFO)
          fileHandle.setFormatter(logging.Formatter(fmt)) 
          subj_logger.addHandler(fileHandle)
+         streamHandle=logging.StreamHandler(sys.stdout)
+         streamHandle.setFormatter(logging.Formatter(fmt))
+         subj_logger.addHandler(streamHandle)
          subj_logger.info('Initializing subject level HV log')
      return subj_logger   
 
-def log(function):
+def log(function, logger):
     def wrapper(*args, **kwargs):  
         logger.info(f"{function.__name__} :: START")
         try:
             output = function(*args, **kwargs)
+            logger.info(f"{function.__name__} :: SUCCESS")
         except BaseException as e:
             logger.exception(f"{function.__name__} :: " + str(e))
             raise
-        logger.info(f"{function.__name__} :: COMPLETED")
+        # logger.info(f"{function.__name__} :: COMPLETED")
         return output
     return wrapper
 
@@ -199,6 +203,7 @@ def main(args):
                                                             qa_sternberg,
                                                             qa_gonogo, 
                                                             )
+    
     from hv_proc.utilities.print_QA_images import (plot_airpuff,
                                                     plot_oddball,
                                                     plot_hariri,
@@ -211,6 +216,12 @@ def main(args):
     reload(logging)
     logger = get_subj_logger(args.subjid, session='QA', log_dir=default_outlog_path)
     logger.info(f'Initializing structure :: {args.subjid}')
+    # Setup logging "decorator" on all of these QA methods
+    qa_oddball = log(qa_oddball, logger=logger)
+    qa_airpuff = log(qa_airpuff, logger=logger)
+    qa_hariri = log(qa_hariri, logger=logger)
+    qa_sternberg = log(qa_sternberg, logger=logger)
+    qa_gonogo = log(qa_gonogo, logger=logger)
     
     if ('airpuff' in args.QA_task) and has_airpuff:
         airpuff_filename = filter_list_by_task(subj_datasets, 'airpuff')[0]

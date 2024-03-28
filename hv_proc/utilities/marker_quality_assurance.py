@@ -59,6 +59,7 @@ def log(function):
         logging.info(f"{function.__name__} :: START")
         try:
             output = function(*args, **kwargs)
+            logging.info(f'QA SUCCESS: {function.__name__}')
         except BaseException as e:
             logging.exception(f"{function.__name__} :: " + str(e))
             raise
@@ -69,7 +70,6 @@ def log(function):
 
 ####################### SET OF TESTS FOR OUTPUTS ON HV #######################
 # These verify that the expected outputs have the right number of triggers
-@log
 def qa_airpuff(filename=None, subjid=None):
     task='airpuff'
     dframe=annot_dataframe(filename)
@@ -102,7 +102,6 @@ def qa_oddball(filename=None, subjid=None):
         if summary.loc['response_miss']>20:
             logger.warning(f'{task}: Oddball response miss > 20: {summary.loc["response_miss"]}')
 
-@log
 def qa_hariri(filename=None, subjid=None):
     '''Load the hariri dataset and verify that the emotional and contrast stims
     sum to the appropriate amount'''
@@ -133,7 +132,6 @@ def qa_hariri(filename=None, subjid=None):
     if not summary.loc[['response_r', 'response_l']].sum() > 120:
         logger.warning(f'{task}: Hariri: response l+r < 120: { summary.loc[["response_r", "response_l"]].sum() }')
 
-@log    
 def qa_sternberg(filename=None, subjid=None): #logger=None):
     task = 'sternberg'
     dframe = annot_dataframe(filename)
