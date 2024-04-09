@@ -16,6 +16,9 @@ import numpy as np
 import os, sys
 import logging
 
+global logdir 
+logdir = '/data/NIMH_MEGCoregroup/NIMH_HV/bids_staging_batch3/out_logs'
+
 # logger=logging.getLogger(__name__)
 # logger.setLevel(level=logging.INFO)
 global logdir 

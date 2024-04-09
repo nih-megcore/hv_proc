@@ -13,9 +13,7 @@ import logging
 try:
     default_meg_path = os.path.join(os.environ['hv_meg_path'])
     default_outlog_path = os.path.join(os.path.dirname(default_meg_path), 'out_logs')
-    if not os.path.exists(default_outlog_path):
-        os.mkdir(default_outlog_path)
-    default_logfile_path = os.path.join(os.environ['hv_logfile_path'])
+                                        
 except:
     if 'hv_meg_path' not in os.environ:
         raise ValueError('''Make sure to set hv_meg_path.
@@ -215,7 +213,7 @@ def main(args):
     logging.shutdown()
     reload(logging)
     logger = get_subj_logger(args.subjid, session='QA', log_dir=default_outlog_path)
-    logger.info(f'Initializing structure :: {args.subjid}')
+    # logger.info(f'Initializing structure :: {args.subjid}')
     # Setup logging "decorator" on all of these QA methods
     qa_oddball = log(qa_oddball, logger=logger)
     qa_airpuff = log(qa_airpuff, logger=logger)
