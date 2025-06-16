@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="hv_proc", 
-    version="0.1.0",
+    version="2.0.0",
     author="Jeff Stout",
     author_email="stoutjd@nih.gov",
     description="Package to process triggers for NIMH healthy volunteer MEG protocol",
