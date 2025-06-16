@@ -4,6 +4,8 @@
 ```
 pip  install git+https://github.com/nih-megcore/hv_proc
 ```
+For datasets pre-2025 (git clone ... cd hv_proc ... git checkout v1.0.0 ... pip install .)
+
 ## Usage
 hv_process.py will interface to call the appropriate TASK script: hv_proc/Process_scripts/Process_TASK.py.
 hv_process.py will find appropriate datasets from the list (airpuff, hariri, sternberg, gonogo, oddball)
