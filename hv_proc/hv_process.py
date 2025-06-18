@@ -217,7 +217,9 @@ def main(args):
         except BaseException as e:
             logger.exception(f'LingTask Exception: {e}')
         
-        
+
+    # !!! FIX          <_----------------------------------------------------------
+    # Prevents the rest of the code from running (currently don't have QA for new tasks
     return    
         
         

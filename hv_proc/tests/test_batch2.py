@@ -9,7 +9,8 @@ Created on Mon Jun 16 17:14:14 2025
 import os, os.path as op
 import pytest 
 from hv_proc.hv_process import get_subject_datasets, filter_list_by_task, get_logfile
-
+import mne
+import pandas as pd
 
 
 test_logfile_dir = op.expanduser('~/nihmeg_test_data/HVDATA/v2.0.0/logfiles')
@@ -19,6 +20,9 @@ os.environ['hv_meg_path'] = test_data_dir
 
 # Import of main must be set after the os.environ has been set
 from hv_proc.hv_process import main
+
+
+subject_dsets = get_subject_datasets('CDCDCDCD', meg_path=test_data_dir)
 
 @pytest.fixture(scope='session')
 def test_dir(tmp_path_factory):
@@ -82,16 +86,74 @@ class test_args():
         self.print_stim_counts=None 
             
 def test_flanker():
+    taskfile = filter_list_by_task(subject_dsets, task='flanker')[0]
+    mrkfile = op.join(taskfile, 'MarkerFile.mrk')
+    if op.exists(mrkfile):
+        os.remove(mrkfile)
     args = test_args(task='flanker')
     main(args)
     
+    assert op.exists(mrkfile)
+    raw = mne.io.read_raw_ctf(taskfile, preload=False, system_clock='ignore')
+    dframe = pd.DataFrame(raw.annotations)
+    value_dict = dict(dframe.description.value_counts())
+    gt_dict = {'fixation': 160,
+                 'correct_response': 55,
+                 'right_response': 55,
+                 'left_response': 52,
+                 'incorrect_response': 45,
+                 'right_incongruent': 40,
+                 'left_congruent': 40,
+                 'left_incongruent': 40,
+                 'right_congruent': 40}
+    for key in gt_dict.keys():
+        assert gt_dict[key]==value_dict[key]
+    
+    
 def test_lingtask():
+    taskfile = filter_list_by_task(subject_dsets, task='poeppel')[0]
+    mrkfile = op.join(taskfile, 'MarkerFile.mrk')
+    if op.exists(mrkfile):
+        os.remove(mrkfile)    
+    
     args = test_args(task='lingtask')
     main(args)
+    assert op.exists(mrkfile)
+    raw = mne.io.read_raw_ctf(taskfile, preload=False, system_clock='ignore')
+    dframe = pd.DataFrame(raw.annotations)
+    value_dict = dict(dframe.description.value_counts())
+    
+    _gt_file = op.join(op.dirname(__file__), 'test_outputs','lingtask_dframe.csv')
+    _gt_dframe = pd.read_csv(_gt_file)
+    gt_dict = dict(_gt_dframe.description.value_counts())
+    for key in gt_dict.keys():
+        assert gt_dict[key]==value_dict[key]    
+    
+    
 
 def test_mid():
+    taskfile = filter_list_by_task(subject_dsets, task='MID')[0]
+    mrkfile = op.join(taskfile, 'MarkerFile.mrk')
+    if op.exists(mrkfile):
+        os.remove(mrkfile)    
+    
     args = test_args(task='mid')
     main(args)
+    assert op.exists(mrkfile)
+    raw = mne.io.read_raw_ctf(taskfile, preload=False, system_clock='ignore')
+    dframe = pd.DataFrame(raw.annotations)
+    value_dict = dict(dframe.description.value_counts())
+    gt_dict = {'cue_neutral': 38,
+             'target_neutral': 38,
+             'cue_win': 38,
+             'target_win': 38,
+             'cue_loss': 38,
+             'target_loss': 38,
+             'response_loss': 32,
+             'response_win': 28,
+             'response_neutral': 27}
+    for key in gt_dict.keys():
+        assert gt_dict[key]==value_dict[key]
     
 
 
