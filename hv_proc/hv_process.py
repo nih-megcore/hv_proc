@@ -86,7 +86,10 @@ def get_logfile(subjid, task=None, logfile_path=None):
     Errors if zero or multiple logfiles are found'''
     task_dict={'hariri':'HH*{}*.log'.format(subjid),
                'sternberg':'Sternberg*{}*.log'.format(subjid),
-               'gonogo': 'GoNoGo*{}*.log'.format(subjid)
+               'gonogo': 'GoNoGo*{}*.log'.format(subjid), 
+               'MID': f'{subjid}_MID*.csv',
+               'flanker': f'{subjid}_Flanker_run*.csv', 
+               'lingtask':f'{subjid}_LingTask_*.csv',
                }
     if logfile_path==None:
         logfile_path=default_logfile_path
@@ -111,13 +114,18 @@ def main(args):
     if subj_datasets == []:
         raise ValueError('''\nThere are no datasets for this subject {} \nin folder {}
                          \nVerify that you have the correct subject'''.format(subjid, default_meg_path))
-
+    
+    #V1 datasets
     has_airpuff = len(filter_list_by_task(subj_datasets, 'airpuff')) > 0
     has_hariri = len(filter_list_by_task(subj_datasets, 'hariri')) > 0
     has_sternberg = len(filter_list_by_task(subj_datasets, 'sternberg')) > 0
     has_oddball = len(filter_list_by_task(subj_datasets, 'oddball')) > 0
     has_gonogo = len(filter_list_by_task(subj_datasets, 'gonogo')) > 0
     has_artifact = len(filter_list_by_task(subj_datasets, 'artifact')) > 0
+    #V2 datasets
+    has_mid = len(filter_list_by_task(subj_datasets, 'mid')) > 0
+    has_flanker = len(filter_list_by_task(subj_datasets, 'flanker')) > 0
+    has_lingtask = len(filter_list_by_task(subj_datasets, 'poeppel')) > 0
 
     ######################## Process Task Data ###############################
     if args.airpuff and has_airpuff:
@@ -171,6 +179,19 @@ def main(args):
             process_artifact_scan.main(filename[0], write_mrk_file=True)
         except BaseException as e:
             logger.exception(f'Artifact Exception: {e}')
+    #V2 additions            
+    if args.flanker and has_flanker:
+        from hv_proc.Process_scripts import process_artifact_scan
+        filename = filter_list_by_task(subj_datasets, 'artifact')
+        logger.info('\nProcessing artifact file: {}'.format(filename[0]))
+        try:
+            process_artifact_scan.main(filename[0], write_mrk_file=True)
+        except BaseException as e:
+            logger.exception(f'Artifact Exception: {e}')
+        
+        
+        
+        
         
     #################### List the output counts for the task #################
     from hv_proc.utilities.response_summary import (print_airpuff_stats, 
@@ -340,6 +361,12 @@ for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task 
                         help='Process triggers for gonogo task')
     parser.add_argument('-oddball', action='store_true',
                         help='Process triggers for auditory oddball task')
+    parser.add_argument('-flanker', action='store_true',
+                        help='Process triggers for flanker task')
+    parser.add_argument('-mid', action='store_true', 
+                        help='Process triggers for MID task')
+    parser.add_argument('-lingtask', action='store_true',
+                        help='Process triggers for Ling task')
     parser.add_argument('-artifact', action='store_true',
                         help='Process triggers for artifact scan')    
     parser.add_argument('-extract_all_triggers', action='store_true', 
@@ -374,17 +401,17 @@ for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task 
         
     if args.extract_all_triggers:
         for i in ['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball',
-                  'artifact']:
+                  'artifact', 'flanker','mid','lingtask']:
             tmp='args.{}=True'.format(i)
             exec(tmp)
     if args.QA_all:
         args.QA_task=['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball',
-                      'artifact']
+                      'artifact','flanker','mid','lingtask']
         
     if args.print_stim_counts:
         args.print_stim_counts = [i.lower() for i in args.print_stim_counts]
         if 'all' in args.print_stim_counts:
-            args.print_stim_counts = ['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball']
+            args.print_stim_counts = ['airpuff', 'hariri', 'sternberg', 'gonogo', 'oddball','flanker','mid','lingtask']
     if not args.print_stim_counts:
         args.print_stim_counts = []
     
@@ -403,4 +430,12 @@ for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task 
     main(args)
 
 
-
+class test_args():
+    def __init__(self):
+        self.subjid='CDCDCDCD'
+        self.flanker=True
+        self.lingtask=True
+        self.mid=True
+args=test_args()
+        
+    
