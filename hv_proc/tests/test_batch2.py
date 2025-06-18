@@ -11,10 +11,14 @@ import pytest
 from hv_proc.hv_process import get_subject_datasets, filter_list_by_task, get_logfile
 
 
+
 test_logfile_dir = op.expanduser('~/nihmeg_test_data/HVDATA/v2.0.0/logfiles')
 os.environ['hv_logfile_path'] = test_logfile_dir
 test_data_dir = op.expanduser('~/nihmeg_test_data/HVDATA/v2.0.0') 
 os.environ['hv_meg_path'] = test_data_dir
+
+# Import of main must be set after the os.environ has been set
+from hv_proc.hv_process import main
 
 @pytest.fixture(scope='session')
 def test_dir(tmp_path_factory):
@@ -57,12 +61,39 @@ def test_filter_list_by_task(test_dir):
     
 def test_get_logfile(test_dir):
     gt_mid = f'{test_logfile_dir}/CDCDCDCD/CDCDCDCD_MID_0101001_010101.csv'
-    assert gt_mid == get_logfile('CDCDCDCD', task='MID', logfile_path=test_logfile_dir)
+    assert gt_mid == get_logfile('CDCDCDCD', task='mid', logfile_path=test_logfile_dir)
     gt_flank = f'{test_logfile_dir}/CDCDCDCD/CDCDCDCD_Flanker_run_0001-01-01_01h01.01.001.csv'
     assert gt_flank == get_logfile('CDCDCDCD', task='flanker', logfile_path=test_logfile_dir)    
     gt_ling = f'{test_logfile_dir}/CDCDCDCD/CDCDCDCD_LingTask_Seq1_01010001_010101.csv'
     assert gt_ling == get_logfile('CDCDCDCD', task='lingtask', logfile_path=test_logfile_dir)    
-        
     
+
+##
+class test_args():
+    def __init__(self, task=None):
+        self.subjid='CDCDCDCD'
+        full_list = ['airpuff','hariri','gonogo','artifact','sternberg','oddball', 
+                     'flanker','lingtask','mid']
+        full_list.remove(task)
+        setattr(self, task, True)
+        for nulltask in full_list:
+            setattr(self, nulltask, False)
+            
+        self.print_stim_counts=None 
+            
+def test_flanker():
+    args = test_args(task='flanker')
+    main(args)
     
+def test_lingtask():
+    args = test_args(task='lingtask')
+    main(args)
+
+def test_mid():
+    args = test_args(task='mid')
+    main(args)
+    
+
+
+
     

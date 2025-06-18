@@ -7,11 +7,14 @@ Created on Tue Mar 17 08:59:50 2020
 """
 import os, glob, sys
 import logging
-
+import hv_proc
+import os.path as op
+import subprocess
 
 #Set the paths to the meg and logfile data
 try:
     default_meg_path = os.path.join(os.environ['hv_meg_path'])
+    default_logfile_path = os.path.join(os.environ['hv_meg_path'],'logfiles')
     default_outlog_path = os.path.join(os.path.dirname(default_meg_path), 'out_logs')
                                         
 except:
@@ -87,7 +90,7 @@ def get_logfile(subjid, task=None, logfile_path=None):
     task_dict={'hariri':'HH*{}*.log'.format(subjid),
                'sternberg':'Sternberg*{}*.log'.format(subjid),
                'gonogo': 'GoNoGo*{}*.log'.format(subjid), 
-               'MID': f'{subjid}_MID*.csv',
+               'mid': f'{subjid}_MID*.csv',
                'flanker': f'{subjid}_Flanker_run*.csv', 
                'lingtask':f'{subjid}_LingTask_*.csv',
                }
@@ -123,7 +126,7 @@ def main(args):
     has_gonogo = len(filter_list_by_task(subj_datasets, 'gonogo')) > 0
     has_artifact = len(filter_list_by_task(subj_datasets, 'artifact')) > 0
     #V2 datasets
-    has_mid = len(filter_list_by_task(subj_datasets, 'mid')) > 0
+    has_mid = len(filter_list_by_task(subj_datasets, 'MID')) > 0
     has_flanker = len(filter_list_by_task(subj_datasets, 'flanker')) > 0
     has_lingtask = len(filter_list_by_task(subj_datasets, 'poeppel')) > 0
 
@@ -181,15 +184,41 @@ def main(args):
             logger.exception(f'Artifact Exception: {e}')
     #V2 additions            
     if args.flanker and has_flanker:
-        from hv_proc.Process_scripts import process_artifact_scan
-        filename = filter_list_by_task(subj_datasets, 'artifact')
-        logger.info('\nProcessing artifact file: {}'.format(filename[0]))
+        _topdir = hv_proc.__path__[0]
+        process_script = op.join(_topdir, 'Process_scripts', 'process_flanker.py')
+        filename = filter_list_by_task(subj_datasets, 'flanker')[0]
+        logger.info('\nProcessing flanker file: {}'.format(filename))
         try:
-            process_artifact_scan.main(filename[0], write_mrk_file=True)
+            cmd = f'{process_script} {filename}'
+            subprocess.run(cmd.split(), check=True)
         except BaseException as e:
-            logger.exception(f'Artifact Exception: {e}')
+            logger.exception(f'Flanker Exception: {e}')
+    
+    if args.mid and has_mid:
+        _topdir = hv_proc.__path__[0]
+        process_script = op.join(_topdir, 'Process_scripts', 'process_mid.py')
+        filename = filter_list_by_task(subj_datasets, 'MID')[0]
+        logger.info('\nProcessing MID file: {}'.format(filename))
+        try:
+            cmd = f'{process_script} {filename}'
+            subprocess.run(cmd.split(), check=True)
+        except BaseException as e:
+            logger.exception(f'MID Exception: {e}')
+    
+    if args.lingtask and has_lingtask:
+        _topdir = hv_proc.__path__[0]
+        process_script = op.join(_topdir, 'Process_scripts', 'process_lingtask.py')
+        filename = filter_list_by_task(subj_datasets, 'poeppel')[0]
+        logfile_fname = get_logfile(subjid, task='lingtask', logfile_path=default_logfile_path)
+        logger.info('\nProcessing lingtask file: {}'.format(filename))
+        try:
+            cmd = f'{process_script} -meg_fname {filename} -logfile {logfile_fname}'
+            subprocess.run(cmd.split(), check=True)
+        except BaseException as e:
+            logger.exception(f'LingTask Exception: {e}')
         
         
+    return    
         
         
         
@@ -430,12 +459,4 @@ for subj in $(hv_process.py -list_subjects); do hv_process.py -${task} -QA_task 
     main(args)
 
 
-class test_args():
-    def __init__(self):
-        self.subjid='CDCDCDCD'
-        self.flanker=True
-        self.lingtask=True
-        self.mid=True
-args=test_args()
-        
-    
+
