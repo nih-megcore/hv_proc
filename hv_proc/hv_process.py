@@ -16,6 +16,7 @@ try:
     default_meg_path = os.path.join(os.environ['hv_meg_path'])
     default_logfile_path = os.path.join(os.environ['hv_meg_path'],'logfiles')
     default_outlog_path = os.path.join(os.path.dirname(default_meg_path), 'out_logs')
+    if not op.exists(default_outlog_path): os.mkdir(default_outlog_path)
                                         
 except:
     if 'hv_meg_path' not in os.environ:
