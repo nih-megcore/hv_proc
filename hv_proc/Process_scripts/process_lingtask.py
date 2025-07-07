@@ -37,7 +37,7 @@ if __name__ == '__main__':
         topdir = op.dirname(op.dirname(meg_fname))
         toplogdir = op.join(topdir, 'logfiles')
         assert op.exists(toplogdir), "Provide a path to a logfile or have a folder of logfiles at the level of the meg folders"
-        logfiles = glob.glob(op.join(toplogdir, meghash, f'{meghash}_LingTask*.csv'))
+        logfiles = glob.glob(op.join(toplogdir, meghash, f'{meghash}_LingTask*_?????[0-9].csv'))
         assert op.exists(op.join(toplogdir, meghash)), f"{meghash} does not have a folder in {toplogdir}"
         _tmp = [i for i in logfiles if not i.endswith('Latencies.csv')]
         assert len(_tmp)==1, f"Found too many logfiles {_tmp}"

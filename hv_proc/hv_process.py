@@ -210,7 +210,11 @@ def main(args):
         _topdir = hv_proc.__path__[0]
         process_script = op.join(_topdir, 'Process_scripts', 'process_lingtask.py')
         filename = filter_list_by_task(subj_datasets, 'poeppel')[0]
-        logfile_fname = get_logfile(subjid, task='lingtask', logfile_path=default_logfile_path)
+        logfiles = glob.glob(op.join(default_logfile_path, args.subjid, f'{args.subjid}_LingTask*_?????[0-9].csv'))
+        assert len(logfiles)>0, 'Could not find a log file'
+        assert len(logfiles)<2, 'Found too many logfiles'
+        logfile_fname = logfiles[0]
+        # logfile_fname = get_logfile(subjid, task='lingtask', logfile_path=default_logfile_path)
         logger.info('\nProcessing lingtask file: {}'.format(filename))
         try:
             cmd = f'{process_script} -meg_fname {filename} -logfile {logfile_fname}'
