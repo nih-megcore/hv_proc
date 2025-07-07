@@ -8,10 +8,9 @@ Created on Mon Jun 16 17:14:14 2025
 
 import os, os.path as op
 import pytest 
-from hv_proc.hv_process import get_subject_datasets, filter_list_by_task, get_logfile
 import mne
 import pandas as pd
-
+import subprocess
 
 test_logfile_dir = op.expanduser('~/nihmeg_test_data/HVDATA/v2.0.0/logfiles')
 os.environ['hv_logfile_path'] = test_logfile_dir
@@ -20,6 +19,7 @@ os.environ['hv_meg_path'] = test_data_dir
 
 # Import of main must be set after the os.environ has been set
 from hv_proc.hv_process import main
+from hv_proc.hv_process import get_subject_datasets, filter_list_by_task, get_logfile
 
 
 subject_dsets = get_subject_datasets('CDCDCDCD', meg_path=test_data_dir)
